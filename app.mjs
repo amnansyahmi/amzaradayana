@@ -1,6 +1,7 @@
 import { events, getEvent, mapUrl, wazeUrl, calendarFile, googleCalendarUrl, countdown } from './events.mjs';
 import { animateCardOpening } from './card-opening.mjs';
 import { createAmbientMotion, createPaperTransition } from './paper-motion.mjs';
+import { isLiteDevice, enableLiteMotion, mountEventSwipe, mountCoverViewport } from './mobile-motion.mjs';
 
 const byId = id => document.getElementById(id);
 const cover = byId('cover');
@@ -16,10 +17,12 @@ let opening;
 let webglCard;
 let webglPreparing;
 let smoothScroll;
-let effectsModule, effectsLoading, ringsScene, namesEffect;
+let effectsModule, effectsLoading, ringsScene, namesEffect, venueEffects, scrollEffects;
 let revealStarted = false, animateNamesOnReveal = false, fullEffectsRequested = false;
 let ambientMotion;
 const paperTransition = createPaperTransition(panel);
+const coverViewport = mountCoverViewport(cover);
+if (isLiteDevice()) enableLiteMotion();
 
 function warmInvitationEffects() {
   if (effectsLoading) return effectsLoading;
@@ -43,8 +46,17 @@ function revealDetails() {
 function mountInvitationRings() {
   warmInvitationEffects().then(module => {
     if (!module || !cover.hidden || ringsScene) return;
+    if (!venueEffects) {
+      venueEffects = module.createVenueEffects(panel);
+      venueEffects.show(selected.icon, { animate: false });
+    }
     try { ringsScene = module.mountRings(byId('rings-stage'), { reducedMotion: motionPreference.matches && !fullEffectsRequested }); }
     catch { /* The inline ring illustration remains available without WebGL. */ }
+    import('./scroll-effects.mjs').then(({ mountScrollEffects }) => {
+      if (!cover.hidden || scrollEffects) return;
+      scrollEffects = mountScrollEffects(shell, { reducedMotion: motionPreference.matches,
+        onVenueEnter: () => venueEffects?.show(selected.icon, { reducedMotion: motionPreference.matches }) });
+    }).catch(() => {}); // Static florals and visible sections remain the fallback.
   });
 }
 
@@ -137,7 +149,9 @@ function selectEvent(id, animate = true) {
   if (animate && previousId !== selected.id) {
     const direction = events.findIndex(event => event.id === selected.id) > events.findIndex(event => event.id === previousId) ? 1 : -1;
     paperTransition.play({ direction, reducedMotion: motionPreference.matches });
+    venueEffects?.show(selected.icon, { reducedMotion: motionPreference.matches });
   }
+  scrollEffects?.refresh();
   const url = new URL(location.href);
   url.searchParams.set('majlis', selected.id);
   try { history.replaceState(null, '', url); } catch { /* The card also works in restrictive embeds. */ }
@@ -162,6 +176,14 @@ document.querySelectorAll('[data-jump]').forEach(button => {
     byId('majlis').scrollIntoView({ behavior: motionPreference.matches ? 'instant' : 'smooth', block: 'start' });
     byId(`tab-${selected.id}`).focus({ preventScroll: true });
   });
+});
+
+mountEventSwipe(panel, direction => {
+  const index = events.findIndex(event => event.id === selected.id);
+  const next = Math.max(0, Math.min(events.length - 1, index + direction));
+  if (next === index) return;
+  selectEvent(events[next].id);
+  byId('event-swipe-status').textContent = `${selected.name}. ${selected.dateLabel}.`;
 });
 
 function finishOpening() {
@@ -209,7 +231,9 @@ function replayCard() {
   paperTransition.cancel();
   ringsScene?.dispose(); ringsScene = null;
   namesEffect?.cancel(); namesEffect = null;
-  byId('couple-composition').classList.remove('names-awaiting', 'names-reveal', 'names-explicit-motion');
+  venueEffects?.dispose(); venueEffects = null;
+  scrollEffects?.dispose(); scrollEffects = null;
+  byId('couple-composition').classList.remove('names-awaiting', 'names-reveal', 'names-explicit-motion', 'ink-active');
   opening?.cancel(); opening = null;
   webglCard?.dispose(); webglCard = null;
   smoothScroll?.destroy(); smoothScroll = null;
@@ -225,6 +249,7 @@ function replayCard() {
   cover.style.opacity = '';
   document.body.classList.add('cover-active');
   cover.hidden = false;
+  coverViewport.refresh();
   ambientMotion?.refresh();
   requestAnimationFrame(() => openButton.focus({ preventScroll: true }));
   warmCardScene();
@@ -235,6 +260,7 @@ openButton.addEventListener('click', () => openCard(false, true));
 // This labelled action lets a guest explicitly request the full folding motion
 // even when their operating system normally prefers reduced motion.
 byId('direct-open').addEventListener('click', () => openCard(false, true));
+byId('gentle-open').addEventListener('click', () => openCard(false, false));
 byId('replay-bottom').addEventListener('click', replayCard);
 motionPreference.addEventListener('change', () => {
   // Ambient/UI effects follow the preference; an explicitly requested opening
@@ -242,6 +268,9 @@ motionPreference.addEventListener('change', () => {
   updateDesktopScroll();
   ambientMotion?.refresh();
   if (motionPreference.matches) paperTransition.cancel();
+  scrollEffects?.setReducedMotion(motionPreference.matches);
+  venueEffects?.setReducedMotion(motionPreference.matches);
+  byId('gentle-open').hidden = !motionPreference.matches;
   warmCardScene();
   ringsScene?.setReducedMotion(motionPreference.matches && !fullEffectsRequested);
   if (motionPreference.matches && !fullEffectsRequested) {
@@ -348,6 +377,7 @@ document.body.classList.add('cover-active');
 ambientMotion = createAmbientMotion({ cover, greeting: document.querySelector('.greeting'),
   getState: () => ({ coverActive: !cover.hidden || isOpening, reducedMotion: motionPreference.matches || isOpening }) });
 byId('direct-open').textContent = motionPreference.matches ? 'Mainkan animasi pembukaan' : 'Buka kad jemputan';
+byId('gentle-open').hidden = !motionPreference.matches;
 if (location.hash === '#majlis') openCard(true);
 else warmCardScene();
 warmInvitationEffects();

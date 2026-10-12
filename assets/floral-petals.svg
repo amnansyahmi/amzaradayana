@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 500" fill="none"><defs>
+    <linearGradient id="leaf" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#c5cec3" /><stop offset="1" stop-color="#aab8a9" /></linearGradient>
+    <radialGradient id="blue"><stop stop-color="#f4f5f2" /><stop offset=".6" stop-color="#dde3e3" /><stop offset="1" stop-color="#bccacf" /></radialGradient>
+    <radialGradient id="ivory"><stop stop-color="#fbfaf4" /><stop offset=".67" stop-color="#f2eddf" /><stop offset="1" stop-color="#d9cbb3" /></radialGradient>
+    <radialGradient id="centre"><stop stop-color="#e5ddc6" /><stop offset="1" stop-color="#c0b18d" /></radialGradient>
+    <g id="bloom">
+      <g fill="url(#blue)" stroke="#b5c1c6" stroke-width=".65">
+        <path d="M0 1C-33-6-40-36-23-48C-5-62 10-39 8-17C25-46 49-46 57-26C65-5 38 10 17 8C47 23 42 50 21 54C-1 58-8 33-8 16C-24 47-52 40-55 20C-58-1-35-14-15-7C-16-22-7-26 0 1Z" />
+        <path d="M1 1C-20-1-26-19-16-29C-5-39 5-24 4-11C14-28 29-30 34-17C39-3 24 5 12 5C30 15 26 32 13 34C0 36-5 20-5 10C-16 29-32 25-34 12C-36 0-21-7-9-4C-10-13-4-15 1 1Z" opacity=".85" />
+      </g>
+      <g stroke="#aebdc3" stroke-width=".6" opacity=".55"><path d="M-16-39Q-13-17 0 0M43-24Q26-6 4 1M26 41Q11 28 3 5M-41 19Q-24 8-4 1" /></g>
+      <circle cx="1" cy="2" r="9" fill="url(#centre)" stroke="#c9bfa5" stroke-width=".7" />
+      <g fill="#b4a58a"><circle cx="0" cy="-1" r="1.1" /><circle cx="4" cy="3" r="1.1" /><circle cx="-3" cy="4" r="1.1" /><circle cx="1" cy="6" r="1" /></g>
+    </g>
+    <g id="rose">
+      <g fill="url(#ivory)" stroke="#d1c7b5" stroke-width=".7">
+        <path d="M-8-39C13-54 40-29 34-9C58 0 48 30 26 32C13 55-17 50-25 28C-49 27-58 3-35-13C-42-37-23-48-8-39Z" />
+        <path d="M-4-27C12-37 28-20 23-6C40 3 31 21 16 22C4 36-15 29-17 14C-35 11-35-8-18-13C-20-28-10-31-4-27Z" />
+        <path d="M-10-7C-3-22 13-20 17-8C29 5 12 17 1 12C-14 20-24 4-10-7Z" />
+        <path d="M-2-7C6-13 14-4 9 3C2 9-7 4-2-7Z" />
+      </g>
+    </g>
+  </defs>
+  <g fill="#d4dddf" stroke="#bac6c8" stroke-width=".7" opacity=".8">
+    <ellipse cx="171" cy="92" rx="15" ry="26" transform="rotate(-15 171 92)" />
+    <path d="M160 108q13-7 24-1l-6 15h-12Z" fill="#b2c0b0" />
+    <ellipse cx="297" cy="179" rx="12" ry="20" transform="rotate(32 297 179)" />
+    <path d="m282 188 21 8-13 10Z" fill="#b2c0b0" />
+  </g>
+  <use href="#bloom" transform="translate(160 291) rotate(13) scale(1.02)" />
+  <use href="#bloom" transform="translate(234 230) rotate(-26) scale(.64)" />
+  <use href="#rose" transform="translate(88 390) rotate(-18) scale(1.17)" />
+  <use href="#bloom" transform="translate(40 448) rotate(23) scale(.75)" />
+  <use href="#rose" transform="translate(137 355) rotate(22) scale(.63)" />
+  </svg>

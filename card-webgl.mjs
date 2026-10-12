@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { gsap } from 'gsap';
 import { planHandoff } from './opening-handoff.mjs';
+import { OPENING, isLiteDevice, createFrameBudget, enableLiteMotion } from './mobile-motion.mjs';
 
 const W = 2.8;
 
@@ -117,9 +118,10 @@ export async function prepareWebGLCard(cover, card, shouldPrepare = () => true) 
   const initialBounds = card.getBoundingClientRect();
   const H = W * initialBounds.height / initialBounds.width, aspect = H / W;
   const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: 'low-power' });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+  let lite = isLiteDevice() || document.body.classList.contains('effects-lite');
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, lite ? 1 : 1.5));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.enabled = !lite;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.domElement.className = 'card-webgl';
   renderer.domElement.setAttribute('aria-hidden', 'true');
@@ -156,9 +158,11 @@ export async function prepareWebGLCard(cover, card, shouldPrepare = () => true) 
   ctx.strokeStyle = '#9a743d'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(128, 128, 104, 0, Math.PI * 2); ctx.stroke();
   ctx.fillStyle = '#40290d'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   ctx.font = '70px "Cormorant Garamond"'; ctx.fillText('A&D', 128, 132);
+  const sealFace = new THREE.MeshStandardMaterial({ map: texture(sealImage), metalness: .2, roughness: .6,
+    emissive: '#ebd5a4', emissiveIntensity: 0 });
   const seal = new THREE.Mesh(new THREE.CylinderGeometry(.30, .30, .035, 48), [
     new THREE.MeshStandardMaterial({ color: '#b59151', metalness: .3, roughness: .55 }),
-    new THREE.MeshStandardMaterial({ map: texture(sealImage), metalness: .2, roughness: .6 }), edge
+    sealFace, edge
   ]);
   seal.rotation.x = Math.PI / 2; seal.position.z = .067; seal.castShadow = true; root.add(seal);
   const floor = new THREE.Mesh(new THREE.PlaneGeometry(18, 18), new THREE.ShadowMaterial({ opacity: .18 }));
@@ -167,8 +171,16 @@ export async function prepareWebGLCard(cover, card, shouldPrepare = () => true) 
   let timeline;
   let activeFinish;
   let paperScaleY = 1;
+  let baseCameraZ = 1, baseX = 0, baseY = 0, handoff;
+  let focusTarget;
+  const pose = { handoff: 0 };
   const zoom = { scale: 1 };
-  const applyScale = () => root.scale.set(zoom.scale, paperScaleY * zoom.scale, zoom.scale);
+  const applyScale = () => {
+    root.scale.set(zoom.scale, paperScaleY * zoom.scale, zoom.scale);
+    camera.position.z = baseCameraZ + ((handoff?.cameraZ ?? baseCameraZ) - baseCameraZ) * pose.handoff;
+    root.position.x = baseX;
+    root.position.y = baseY + ((handoff?.paperY ?? baseY) - baseY) * pose.handoff;
+  };
   renderer.domElement.addEventListener('webglcontextlost', event => {
     event.preventDefault();
     const finish = activeFinish;
@@ -181,20 +193,42 @@ export async function prepareWebGLCard(cover, card, shouldPrepare = () => true) 
     if (!bounds.width || !bounds.height || !paperBounds.width) return;
     const units = W / paperBounds.width;
     paperScaleY = paperBounds.height * units / H;
-    applyScale();
     camera.aspect = bounds.width / bounds.height;
-    camera.position.z = bounds.height * units / (2 * Math.tan(THREE.MathUtils.degToRad(35 / 2)));
+    baseCameraZ = bounds.height * units / (2 * Math.tan(THREE.MathUtils.degToRad(35 / 2)));
     camera.updateProjectionMatrix(); renderer.setSize(bounds.width, bounds.height);
-    root.position.x = ((paperBounds.left + paperBounds.width / 2) - (bounds.left + bounds.width / 2)) * units;
-    root.position.y = -((paperBounds.top + paperBounds.height / 2) - (bounds.top + bounds.height / 2)) * units;
+    baseX = ((paperBounds.left + paperBounds.width / 2) - (bounds.left + bounds.width / 2)) * units;
+    baseY = -((paperBounds.top + paperBounds.height / 2) - (bounds.top + bounds.height / 2)) * units;
+    if (focusTarget) {
+      const target = focusTarget.getBoundingClientRect();
+      handoff = planHandoff({ cameraZ: baseCameraZ, openedScale: window.matchMedia('(max-width: 600px)').matches ? .68 : .8,
+        cardWidth: paperBounds.width, paperHeight: H * paperScaleY, viewportHeight: bounds.height,
+        nameCenterY: target.top + target.height / 2 - bounds.top,
+        nameFontSize: Number.parseFloat(getComputedStyle(focusTarget).fontSize) });
+    }
+    applyScale();
     renderer.render(scene, camera);
   };
   // Preserve screen alignment through orientation changes; idle frames are not rendered.
   window.addEventListener('resize', resize);
+  window.visualViewport?.addEventListener('resize', resize);
+  const observer = typeof ResizeObserver === 'function' ? new ResizeObserver(resize) : null;
+  observer?.observe(cover);
+  const budget = createFrameBudget(() => {
+    lite = true; renderer.setPixelRatio(1); renderer.shadowMap.enabled = false;
+    light.castShadow = false; enableLiteMotion(); resize();
+  }, lite);
+  const visibility = () => {
+    budget.reset();
+    if (document.hidden) timeline?.pause();
+    else timeline?.resume();
+  };
+  document.addEventListener('visibilitychange', visibility);
   resize();
   function dispose() {
     if (disposed) return;
     disposed = true; timeline?.kill(); window.removeEventListener('resize', resize);
+    window.visualViewport?.removeEventListener('resize', resize); observer?.disconnect();
+    document.removeEventListener('visibilitychange', visibility);
     const geometries = new Set(), materials = new Set(), maps = new Set();
     scene.traverse(object => {
       if (object.geometry) geometries.add(object.geometry);
@@ -207,35 +241,38 @@ export async function prepareWebGLCard(cover, card, shouldPrepare = () => true) 
   }
   return {
     dispose,
-    play({ onReveal, onFinish, focusTarget }) {
+    play({ onReveal, onFinish, focusTarget: target }) {
       if (disposed) throw new Error('Disposed card scene');
       activeFinish = onFinish;
       renderer.domElement.style.opacity = '0';
       cover.append(renderer.domElement); cover.classList.add('webgl-active', 'is-opening');
       const small = window.matchMedia('(max-width: 600px)').matches;
       const openedScale = small ? .68 : .8;
-      const paperBounds = card.getBoundingClientRect(), stageBounds = cover.getBoundingClientRect();
-      const targetBounds = focusTarget?.getBoundingClientRect();
-      const handoff = planHandoff({ cameraZ: camera.position.z, openedScale,
-        cardWidth: paperBounds.width, paperHeight: H, viewportHeight: stageBounds.height,
-        nameCenterY: targetBounds ? targetBounds.top + targetBounds.height / 2 - stageBounds.top : stageBounds.height * .4,
-        nameFontSize: focusTarget ? Number.parseFloat(getComputedStyle(focusTarget).fontSize) : 76 });
-      timeline = gsap.timeline({ onUpdate: () => { applyScale(); renderer.render(scene, camera); }, onComplete: () => { onFinish(); dispose(); } });
+      focusTarget = target; resize();
+      timeline = gsap.timeline({ onUpdate: () => {
+        budget.sample(performance.now()); applyScale(); renderer.render(scene, camera);
+      }, onComplete: () => { onFinish(); dispose(); } });
       // Blend matching DOM/Canvas covers before either hinge starts rotating.
-      timeline.to(renderer.domElement, { opacity: 1, duration: .22, ease: 'sine.inOut' }, 0);
-      timeline.to(card, { opacity: 0, duration: .22, ease: 'sine.inOut' }, 0);
-      timeline.to(seal.position, { z: .5, y: .25, duration: .48, ease: 'power2.in' }, 0);
-      timeline.to(seal.scale, { x: 0, y: 0, z: 0, duration: .32, ease: 'power2.in' }, .2);
-      timeline.to(leaves.left.rotation, { y: hingeGeometry('left').angle, duration: 2.15, ease: 'power2.inOut' }, .26);
-      timeline.to(leaves.right.rotation, { y: hingeGeometry('right').angle, duration: 2.15, ease: 'power2.inOut' }, .40);
+      timeline.to(renderer.domElement, { opacity: 1, duration: OPENING.press, ease: 'sine.inOut' }, 0);
+      timeline.to(card, { opacity: 0, duration: OPENING.press, ease: 'sine.inOut' }, 0);
+      timeline.to(seal.scale, { x: .95, y: .95, z: .75, duration: OPENING.press }, 0);
+      timeline.to(seal.position, { z: .05, duration: OPENING.press }, 0);
+      timeline.to(sealFace, { emissiveIntensity: .2, duration: .12 }, .06);
+      timeline.to(sealFace, { emissiveIntensity: 0, duration: .2 }, .18);
+      timeline.to(seal.position, { z: .5, y: .25, duration: OPENING.seal - OPENING.press, ease: 'power2.in' }, OPENING.press);
+      timeline.to(seal.scale, { x: 0, y: 0, z: 0, duration: .25, ease: 'power2.in' }, .27);
+      for (const side of ['left', 'right']) {
+        const start = OPENING[side], angle = hingeGeometry(side).angle;
+        timeline.to(leaves[side].rotation, { y: angle * .12, duration: .38, ease: 'sine.in' }, start);
+        timeline.to(leaves[side].rotation, { y: angle, duration: OPENING.hinge - .38, ease: 'power2.inOut' }, start + .38);
+      }
       timeline.to(root.rotation, { x: .10, duration: .9, ease: 'power1.inOut' }, .25);
       timeline.to(root.rotation, { x: 0, duration: .9, ease: 'power1.inOut' }, 1.4);
       timeline.to(zoom, { scale: openedScale, duration: 2.4, ease: 'power1.inOut' }, .15);
       // Move through the opened paper toward the actual names in the page.
-      timeline.to(camera.position, { z: handoff.cameraZ, duration: .95, ease: 'power2.inOut' }, 2.6);
-      timeline.to(root.position, { y: handoff.paperY, duration: .95, ease: 'power2.inOut' }, 2.6);
-      timeline.call(onReveal, [], 2.95);
-      timeline.to(cover, { opacity: 0, duration: .8, ease: 'sine.inOut' }, 2.95);
+      timeline.to(pose, { handoff: 1, duration: .95, ease: 'power2.inOut' }, OPENING.approach);
+      timeline.call(onReveal, [], OPENING.reveal);
+      timeline.to(cover, { opacity: 0, duration: OPENING.fade, ease: 'sine.inOut' }, OPENING.reveal);
       return { cancel() { timeline.kill(); gsap.set([cover, card], { clearProps: 'opacity' }); dispose(); } };
     }
   };

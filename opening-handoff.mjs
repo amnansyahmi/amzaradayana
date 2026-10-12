@@ -8,3 +8,8 @@ export function planHandoff({ cameraZ, openedScale, cardWidth, paperHeight, view
   return { cameraZ: cameraZ * cameraFactor,
     paperY: -(nameCenterY - viewportHeight / 2) * units - textY };
 }
+
+export function planCSSHandoff({ cardWidth, cardHeight, viewportHeight, nameCenterY, nameFontSize }) {
+  const scale = Math.max(.9, Math.min(1.18, nameFontSize / (135 * cardWidth / 768)));
+  return { scale, y: nameCenterY - viewportHeight / 2 - cardHeight * (410 / 1064 - .5) * scale };
+}
