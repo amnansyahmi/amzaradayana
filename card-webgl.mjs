@@ -62,10 +62,10 @@ function paperTexture(branch, aspect, inside = false) {
   ctx.strokeRect(38, 38, 692, height - 76); ctx.globalAlpha = 1;
   if (inside) {
     // Botanical corners frame the names, with clear space through the centre.
-    ctx.globalAlpha = .47;
-    ctx.drawImage(branch, -125, height - 720, 390, 610);
-    ctx.save(); ctx.translate(768, height); ctx.rotate(Math.PI); ctx.globalAlpha = .33;
-    ctx.drawImage(branch, -125, height - 720, 390, 610); ctx.restore(); ctx.globalAlpha = 1;
+    ctx.globalAlpha = .9;
+    ctx.drawImage(branch, -88, height - 740, 355, 680);
+    ctx.save(); ctx.translate(768, height); ctx.rotate(Math.PI); ctx.globalAlpha = .8;
+    ctx.drawImage(branch, -88, height - 740, 355, 680); ctx.restore(); ctx.globalAlpha = 1;
     // An engraved pair of rings replaces the empty area above the introduction.
     ctx.save(); ctx.translate(384, y(110)); ctx.strokeStyle = '#9b7a3e'; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.arc(-18, 0, 27, 0, Math.PI * 2); ctx.stroke();
@@ -85,7 +85,7 @@ function paperTexture(branch, aspect, inside = false) {
     ctx.save(); ctx.translate(384, y(956)); ctx.rotate(Math.PI / 4);
     ctx.strokeRect(-7, -7, 14, 14); ctx.restore();
   } else {
-    ctx.globalAlpha = .4; ctx.drawImage(branch, -15, height - 694, 430, 675);
+    ctx.globalAlpha = .8; ctx.drawImage(branch, -15, height - 694, 430, 675);
   }
   return texture(image);
 }
@@ -96,9 +96,9 @@ function halfTexture(image, side) {
   return texture(half);
 }
 
-async function loadBranch() {
+async function loadBranch(file = 'botanical.svg') {
   const image = new Image();
-  image.src = new URL('./assets/botanical.svg', document.baseURI).href;
+  image.src = new URL(`./assets/${file}`, document.baseURI).href;
   await image.decode();
   return image;
 }
@@ -109,7 +109,7 @@ export async function prepareWebGLCard(cover, card, shouldPrepare = () => true) 
     document.fonts.load('76px "Great Vibes"'), document.fonts.load('20px "Cormorant Garamond"'),
     document.fonts.load('13px Manrope')
   ]);
-  const branch = await loadBranch();
+  const [branch, floral] = await Promise.all([loadBranch(), loadBranch('floral-corner.svg')]);
   // A quick first tap may already be running the CSS fallback. Avoid shader
   // compilation during that animation, which would interrupt its frame pacing.
   if (!shouldPrepare()) return null;
@@ -125,15 +125,17 @@ export async function prepareWebGLCard(cover, card, shouldPrepare = () => true) 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(35, 1, .1, 100);
   const root = new THREE.Group(); scene.add(root);
-  scene.add(new THREE.AmbientLight(0xffffff, 2.4));
-  const light = new THREE.DirectionalLight(0xfff5de, 2.6);
+  // Keep the combined irradiance below the paper's diffuse clipping point.
+  // The old intensities bleached the botanical textures to white on mobile.
+  scene.add(new THREE.AmbientLight(0xffffff, 1.7));
+  const light = new THREE.DirectionalLight(0xfffaf1, 1.1);
   light.position.set(-3, 5, 8); light.castShadow = true;
   light.shadow.mapSize.set(512, 512);
   Object.assign(light.shadow.camera, { left: -5, right: 5, top: 5, bottom: -5, near: .1, far: 20 });
   light.shadow.bias = -.001; scene.add(light);
   const front = coverTexture(branch, aspect);
-  const paper = paperTexture(branch, aspect);
-  const basePaper = paperTexture(branch, aspect, true);
+  const paper = paperTexture(floral, aspect);
+  const basePaper = paperTexture(floral, aspect, true);
   const edge = new THREE.MeshStandardMaterial({ color: '#ccb992', roughness: .9 });
   const base = new THREE.Mesh(new THREE.BoxGeometry(W, H, .016), [edge, edge, edge, edge,
     new THREE.MeshStandardMaterial({ map: basePaper, roughness: .92 }), edge]);

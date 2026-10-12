@@ -161,6 +161,21 @@ html.lenis,html.lenis body { height: auto; }
 /* Match the decorated physical insert when CSS 3D is used as the fallback. */
 .card-inside { background: linear-gradient(135deg,#f7f1e3,var(--paper) 50%,#f6eedf); overflow: hidden; }
 .card-inside>p,.inside-names,.inside-flourish { position: relative; z-index: 1; }
-.inside-botanical { position: absolute; width: clamp(150px,38vmin,270px); opacity: .47; pointer-events: none; }
+.inside-botanical { position: absolute; width: clamp(150px,38vmin,270px); opacity: .9; pointer-events: none; }
 .inside-botanical-left { left: -44px; bottom: -12px; }
-.inside-botanical-right { right: -44px; top: -12px; transform: rotate(180deg); opacity: .33; }
+.inside-botanical-right { right: -44px; top: -12px; transform: rotate(180deg); opacity: .8; }
+
+/* The names receive screen-reader focus after opening; they are not a control. */
+#couple-names:focus,#couple-names:focus-visible { outline: none; box-shadow: none; }
+.greeting { background: radial-gradient(ellipse at 50% 44%,#fcfaf4 28%,#f1f0e6 100%); }
+.paper-botanical { width: 270px; opacity: .88; }
+.paper-botanical-left { left: -93px; bottom: -16px; transform: rotate(4deg); }
+.paper-botanical-right { right: -93px; top: -22px; transform: rotate(184deg); }
+.couple-names { position: relative; z-index: 1; text-shadow: 0 1px 0 #fff,0 3px 15px #20364a0c; }
+.greeting-close { max-width: 26ch; margin-inline: auto; }
+@media(max-width:600px) {
+  .paper-botanical { width: 250px; opacity: .78; }
+  .paper-botanical-left { left: -62px; bottom: -12px; }
+  .paper-botanical-right { right: -62px; top: -12px; }
+}
+@media print { .greeting { background: white; } }
