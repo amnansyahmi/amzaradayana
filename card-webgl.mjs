@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { gsap } from 'gsap';
 
-const W = 2.8, H = W * 54 / 39;
+const W = 2.8;
 
 export function hingeGeometry(side) {
   return { pivot: side === 'left' ? -W / 2 : W / 2,
@@ -22,43 +22,45 @@ function texture(image) {
   return map;
 }
 
-function coverTexture(branch) {
-  const [image, ctx] = canvas(768, 1064);
-  ctx.fillStyle = '#132d46'; ctx.fillRect(0, 0, 768, 1064);
+function coverTexture(branch, aspect) {
+  const height = Math.round(768 * aspect), y = value => value * height / 1064;
+  const [image, ctx] = canvas(768, height);
+  ctx.fillStyle = '#132d46'; ctx.fillRect(0, 0, 768, height);
   ctx.strokeStyle = '#c3a36b'; ctx.lineWidth = 1.5;
-  ctx.strokeRect(25, 25, 718, 1014); ctx.globalAlpha = .4;
-  ctx.strokeRect(35, 35, 698, 994); ctx.globalAlpha = .75;
-  ctx.drawImage(branch, -108, 485, 414, 647);
+  ctx.strokeRect(25, 25, 718, height - 50); ctx.globalAlpha = .4;
+  ctx.strokeRect(35, 35, 698, height - 70); ctx.globalAlpha = .75;
+  ctx.drawImage(branch, -108, height - 579, 414, 647);
   ctx.save(); ctx.translate(768, 0); ctx.scale(-1, 1);
-  ctx.drawImage(branch, -108, 485, 414, 647); ctx.restore(); ctx.globalAlpha = 1;
+  ctx.drawImage(branch, -108, height - 579, 414, 647); ctx.restore(); ctx.globalAlpha = 1;
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#f4e7c9';
-  ctx.font = '42px "Cormorant Garamond"'; ctx.fillText('Walimatulurus', 384, 135);
-  ctx.font = '162px "Great Vibes"'; ctx.fillText('Amzar', 384, 315); ctx.fillText('Dayana', 384, 690);
+  ctx.font = '42px "Cormorant Garamond"'; ctx.fillText('Walimatulurus', 384, y(135));
+  ctx.font = '145px "Great Vibes"'; ctx.fillText('Amzar', 384, y(315)); ctx.fillText('Dayana', 384, y(690));
   ctx.font = '25px Manrope'; ctx.fillStyle = '#e5d7b9';
-  ctx.fillText('Dengan sukacitanya menjemput', 384, 945); ctx.fillText('anda seisi keluarga', 384, 987);
+  ctx.fillText('Dengan sukacitanya menjemput', 384, y(881)); ctx.fillText('anda seisi keluarga', 384, y(923));
   return image;
 }
 
-function paperTexture(branch, inside = false) {
-  const [image, ctx] = canvas(768, 1064);
-  ctx.fillStyle = inside ? '#fcfaf4' : '#f3eee1'; ctx.fillRect(0, 0, 768, 1064);
-  ctx.strokeStyle = '#d8cbb0'; ctx.lineWidth = 1.8; ctx.strokeRect(25, 25, 718, 1014);
+function paperTexture(branch, aspect, inside = false) {
+  const height = Math.round(768 * aspect), y = value => value * height / 1064;
+  const [image, ctx] = canvas(768, height);
+  ctx.fillStyle = inside ? '#fcfaf4' : '#f3eee1'; ctx.fillRect(0, 0, 768, height);
+  ctx.strokeStyle = '#d8cbb0'; ctx.lineWidth = 1.8; ctx.strokeRect(25, 25, 718, height - 50);
   if (inside) {
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#20364a';
-    ctx.font = '38px "Cormorant Garamond"'; ctx.fillText('Dengan penuh kesyukuran', 384, 215);
-    ctx.font = '135px "Great Vibes"'; ctx.fillText('Amzar', 384, 410); ctx.fillText('Dayana', 384, 655);
-    ctx.font = '60px "Cormorant Garamond"'; ctx.fillStyle = '#806232'; ctx.fillText('&', 384, 528);
+    ctx.font = '38px "Cormorant Garamond"'; ctx.fillText('Dengan penuh kesyukuran', 384, y(215));
+    ctx.font = '135px "Great Vibes"'; ctx.fillText('Amzar', 384, y(410)); ctx.fillText('Dayana', 384, y(655));
+    ctx.font = '60px "Cormorant Garamond"'; ctx.fillStyle = '#806232'; ctx.fillText('&', 384, y(528));
     ctx.fillStyle = '#20364a'; ctx.font = '38px "Cormorant Garamond"';
-    ctx.fillText('menjemput anda meraikan', 384, 810); ctx.fillText('hari istimewa kami.', 384, 866);
+    ctx.fillText('menjemput anda meraikan', 384, y(810)); ctx.fillText('hari istimewa kami.', 384, y(866));
   } else {
-    ctx.globalAlpha = .4; ctx.drawImage(branch, -15, 370, 430, 675);
+    ctx.globalAlpha = .4; ctx.drawImage(branch, -15, height - 694, 430, 675);
   }
   return texture(image);
 }
 
 function halfTexture(image, side) {
-  const [half, ctx] = canvas(384, 1064);
-  ctx.drawImage(image, side === 'left' ? 0 : 384, 0, 384, 1064, 0, 0, 384, 1064);
+  const [half, ctx] = canvas(384, image.height);
+  ctx.drawImage(image, side === 'left' ? 0 : 384, 0, 384, image.height, 0, 0, 384, image.height);
   return texture(half);
 }
 
@@ -69,13 +71,18 @@ async function loadBranch() {
   return image;
 }
 
-export async function prepareWebGLCard(cover, card) {
+export async function prepareWebGLCard(cover, card, shouldPrepare = () => true) {
   // CanvasTexture captures the intended typography only after the webfonts load.
   await Promise.all([
     document.fonts.load('76px "Great Vibes"'), document.fonts.load('20px "Cormorant Garamond"'),
     document.fonts.load('13px Manrope')
   ]);
   const branch = await loadBranch();
+  // A quick first tap may already be running the CSS fallback. Avoid shader
+  // compilation during that animation, which would interrupt its frame pacing.
+  if (!shouldPrepare()) return null;
+  const initialBounds = card.getBoundingClientRect();
+  const H = W * initialBounds.height / initialBounds.width, aspect = H / W;
   const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: 'low-power' });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -92,9 +99,9 @@ export async function prepareWebGLCard(cover, card) {
   light.shadow.mapSize.set(512, 512);
   Object.assign(light.shadow.camera, { left: -5, right: 5, top: 5, bottom: -5, near: .1, far: 20 });
   light.shadow.bias = -.001; scene.add(light);
-  const front = coverTexture(branch);
-  const paper = paperTexture(branch);
-  const basePaper = paperTexture(branch, true);
+  const front = coverTexture(branch, aspect);
+  const paper = paperTexture(branch, aspect);
+  const basePaper = paperTexture(branch, aspect, true);
   const edge = new THREE.MeshStandardMaterial({ color: '#ccb992', roughness: .9 });
   const base = new THREE.Mesh(new THREE.BoxGeometry(W, H, .016), [edge, edge, edge, edge,
     new THREE.MeshStandardMaterial({ map: basePaper, roughness: .92 }), edge]);
@@ -124,6 +131,9 @@ export async function prepareWebGLCard(cover, card) {
   let disposed = false;
   let timeline;
   let activeFinish;
+  let paperScaleY = 1;
+  const zoom = { scale: 1 };
+  const applyScale = () => root.scale.set(zoom.scale, paperScaleY * zoom.scale, zoom.scale);
   renderer.domElement.addEventListener('webglcontextlost', event => {
     event.preventDefault();
     const finish = activeFinish;
@@ -135,6 +145,8 @@ export async function prepareWebGLCard(cover, card) {
     const bounds = cover.getBoundingClientRect(), paperBounds = card.getBoundingClientRect();
     if (!bounds.width || !bounds.height || !paperBounds.width) return;
     const units = W / paperBounds.width;
+    paperScaleY = paperBounds.height * units / H;
+    applyScale();
     camera.aspect = bounds.width / bounds.height;
     camera.position.z = bounds.height * units / (2 * Math.tan(THREE.MathUtils.degToRad(35 / 2)));
     camera.updateProjectionMatrix(); renderer.setSize(bounds.width, bounds.height);
@@ -163,19 +175,23 @@ export async function prepareWebGLCard(cover, card) {
     play({ onReveal, onFinish }) {
       if (disposed) throw new Error('Disposed card scene');
       activeFinish = onFinish;
+      renderer.domElement.style.opacity = '0';
       cover.append(renderer.domElement); cover.classList.add('webgl-active', 'is-opening');
       const small = window.matchMedia('(max-width: 600px)').matches;
-      timeline = gsap.timeline({ onUpdate: () => renderer.render(scene, camera), onComplete: () => { onFinish(); dispose(); } });
+      timeline = gsap.timeline({ onUpdate: () => { applyScale(); renderer.render(scene, camera); }, onComplete: () => { onFinish(); dispose(); } });
+      // Blend matching DOM/Canvas covers before either hinge starts rotating.
+      timeline.to(renderer.domElement, { opacity: 1, duration: .22, ease: 'sine.inOut' }, 0);
+      timeline.to(card, { opacity: 0, duration: .22, ease: 'sine.inOut' }, 0);
       timeline.to(seal.position, { z: .5, y: .25, duration: .48, ease: 'power2.in' }, 0);
       timeline.to(seal.scale, { x: 0, y: 0, z: 0, duration: .32, ease: 'power2.in' }, .2);
       timeline.to(leaves.left.rotation, { y: hingeGeometry('left').angle, duration: 2.15, ease: 'power2.inOut' }, .26);
       timeline.to(leaves.right.rotation, { y: hingeGeometry('right').angle, duration: 2.15, ease: 'power2.inOut' }, .40);
       timeline.to(root.rotation, { x: .10, duration: .9, ease: 'power1.inOut' }, .25);
       timeline.to(root.rotation, { x: 0, duration: .9, ease: 'power1.inOut' }, 1.4);
-      timeline.to(root.scale, { x: small ? .68 : .8, y: small ? .68 : .8, z: small ? .68 : .8, duration: 2.4, ease: 'power1.inOut' }, .15);
+      timeline.to(zoom, { scale: small ? .68 : .8, duration: 2.4, ease: 'power1.inOut' }, .15);
       timeline.call(onReveal, [], 2.9);
       timeline.to(cover, { opacity: 0, duration: .65, ease: 'power1.inOut' }, 2.9);
-      return { cancel() { timeline.kill(); gsap.set(cover, { clearProps: 'opacity' }); dispose(); } };
+      return { cancel() { timeline.kill(); gsap.set([cover, card], { clearProps: 'opacity' }); dispose(); } };
     }
   };
 }

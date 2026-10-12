@@ -2,7 +2,7 @@
 
 An invitation that opens like a physical gatefold card. Three.js renders real hinges, front/back paper faces, thin cardboard edges and shadows. GSAP coordinates the seal, staggered panel rotation, camera composition and delayed reveal. The scene renders only during the opening and releases GPU resources afterward. CSS 3D is retained for unsupported WebGL devices.
 
-The opening is the main motion; event selection and the calendar dialog use brief, responsive transitions. Botanical movement is limited to the closed card. Reduced motion uses a short crossfade; an explicitly labelled button allows the guest to opt into folding. Desktop Lenis scrolling is limited to fine pointers, with native touch scrolling on mobile. Motion and React Three Fiber are unnecessary in this vanilla site: GSAP already coordinates the transitions, and R3F would require a React migration.
+The closed card fills the visible browser viewport. The whole card is one accessible button: every tap explicitly requests the complete folding animation, including under reduced motion, as requested by the user. Decorative and other UI motion still follow the system preference. Three.js geometry and texture height follow the viewport aspect ratio so the fullscreen cover stays aligned during the handoff. Desktop Lenis scrolling is limited to fine pointers, with native touch scrolling on mobile. Motion and React Three Fiber are unnecessary in this vanilla site: GSAP already coordinates the transitions, and R3F would require a React migration.
 
 ## Visual decisions
 

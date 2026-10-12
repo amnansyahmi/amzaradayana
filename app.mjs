@@ -17,11 +17,12 @@ let webglPreparing;
 let smoothScroll;
 
 function warmCardScene() {
-  if (motionPreference.matches || webglCard || webglPreparing || cover.hidden) return;
-  webglPreparing = import('./card-webgl.mjs').then(module => module.prepareWebGLCard(cover, byId('fold-card')))
+  if (webglCard || webglPreparing || cover.hidden) return;
+  webglPreparing = import('./card-webgl.mjs').then(module => module.prepareWebGLCard(cover, byId('fold-card'), () => !isOpening && !cover.hidden))
     .then(scene => {
       webglPreparing = null;
-      if (cover.hidden || isOpening || motionPreference.matches) scene.dispose();
+      if (!scene) return;
+      if (cover.hidden || isOpening) scene.dispose();
       else webglCard = scene;
     }).catch(() => { webglPreparing = null; }); // WebGL unavailable: retain the CSS 3D card.
 }
@@ -156,7 +157,7 @@ function openCard(immediate = false, forceMotion = false) {
     try { opening = webglCard.play(callbacks); return; }
     catch { webglCard.dispose(); webglCard = null; }
   }
-  opening = animateCardOpening({ cover, card: byId('fold-card'), seal: openButton,
+  opening = animateCardOpening({ cover, card: byId('fold-card'), seal: byId('card-seal'),
     left: document.querySelector('.door-left'), right: document.querySelector('.door-right'),
     insideShadow: document.querySelector('.inside-fold-shadow'), lights: document.querySelectorAll('.door-light'),
     reducedMotion: motionPreference.matches && !forceMotion, smallScreen: window.matchMedia('(max-width: 600px)').matches,
@@ -182,14 +183,17 @@ function replayCard() {
   requestAnimationFrame(() => openButton.focus({ preventScroll: true }));
   warmCardScene();
 }
-openButton.addEventListener('click', () => openCard());
+// The entire screen-sized card is one semantic button. Every deliberate tap
+// opts into the same full animation as the previous labelled animation action.
+openButton.addEventListener('click', () => openCard(false, true));
 // This labelled action lets a guest explicitly request the full folding motion
 // even when their operating system normally prefers reduced motion.
 byId('direct-open').addEventListener('click', () => openCard(false, true));
 byId('replay-top').addEventListener('click', replayCard);
 byId('replay-bottom').addEventListener('click', replayCard);
 motionPreference.addEventListener('change', () => {
-  if (isOpening && motionPreference.matches) finishOpening();
+  // Ambient/UI effects follow the preference; an explicitly requested opening
+  // continues to completion when the preference changes mid-animation.
   updateDesktopScroll();
   warmCardScene();
   byId('direct-open').textContent = motionPreference.matches ? 'Mainkan animasi pembukaan' : 'Buka kad jemputan';

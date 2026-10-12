@@ -1,6 +1,6 @@
 # Amzar & Dayana — Kad Jemputan
 
-A mobile-first Malay wedding invitation with an animated navy gatefold cover. Tap the centre gold seal to open the card.
+A mobile-first Malay wedding invitation with a fullscreen navy gatefold cover. Tap anywhere on the card to play the complete opening animation.
 
 ## Included
 
@@ -8,7 +8,7 @@ A mobile-first Malay wedding invitation with an animated navy gatefold cover. Ta
 - All three event schedules from the supplied invitation, selected via accessible tabs.
 - Google Maps and Waze searches, `.ics` downloads and Google Calendar links in Malaysia time.
 - Countdown for the selected event, native sharing with a copy-link fallback, and replaying the card opening.
-- Self-hosted fonts, reduced-motion support with an explicit full-animation button, keyboard navigation, progressive fallback without JavaScript, and printable details for all events.
+- Self-hosted fonts, keyboard navigation, progressive fallback without JavaScript, and printable details for all events. Tapping the card explicitly plays the full fold even with Reduce Motion enabled; ambient/UI effects still respect that preference.
 - Desktop Lenis scrolling; mobile uses native vertical touch scrolling with pinch/double-tap zoom disabled.
 
 ## Event source of truth

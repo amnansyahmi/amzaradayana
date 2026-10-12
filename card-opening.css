@@ -106,7 +106,7 @@
 .is-opening .cover-intro,.is-opening .opening-cue,.is-opening .direct-open { opacity: 0; transition: opacity 280ms; pointer-events: none; }
 .is-leaving { opacity: 0; pointer-events: none; }
 .card-webgl { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; }
-.webgl-active .fold-card { visibility: hidden; }
+.webgl-active .fold-card { pointer-events: none; }
 .cover-stage { touch-action: manipulation; }
 .cover-stage,.invitation-shell { -webkit-text-size-adjust: 100%; }
 .calendar-dialog { touch-action: pan-y; }
@@ -122,9 +122,38 @@ html.lenis,html.lenis body { height: auto; }
 .opening-css .inside-fold-shadow { opacity: 0; transition: opacity 2200ms; }
 @keyframes open-left { from { transform: rotateY(0deg); } to { transform: rotateY(-154deg); } }
 @keyframes open-right { from { transform: rotateY(0deg); } to { transform: rotateY(154deg); } }
-@media(max-width:600px) { .cover-intro { font-size: 18px; margin-bottom: 20px; } .opening-cue { margin-top: 22px; } }
-@media(max-width:360px) { .cover-stage { padding: 18px 24px; } .fold-card { width: min(330px,100%); } .cover-name { font-size: 67px; } .cover-label { font-size: 19px; } .cover-footer { font-size: 11px; } .wax-seal { width: 74px; height: 74px; } }
-@media(max-height:760px) and (min-width:361px) { .cover-stage { padding: 14px 22px; } .fold-card { width: min(350px,calc((100svh - 160px)*.722)); } .cover-intro { margin-bottom: 16px; font-size: 18px; } .cover-name { font-size: 72px; } .opening-cue { margin-top: 16px; } .cover-footer { font-size: 12px; } }
-@media(max-height:580px) { .fold-card { width: min(270px,calc((100svh - 105px)*.722)); } .cover-intro { font-size: 15px; margin-bottom: 10px; } .cover-name { font-size: clamp(30px,9svh,60px); } .cover-label { font-size: 15px; } .cover-footer { font-size: 9px; } .wax-seal { width: 58px; height: 58px; } .seal-monogram { font-size: 21px; } .seal-monogram span { font-size: 12px; } .opening-cue { margin-top: 10px; font-size: 11px; } .opening-cue .icon,.direct-open { display: none; } .cover-stage { padding: 12px; } .card-inside p { font-size: 13px; } .inside-names { font-size: 42px; margin: 10px 0 16px; } .inside-flourish { width: 26px; height: 20px; margin-bottom: 6px; } }
+/* The cover occupies the browser's visible viewport, including dynamic iOS sizing. */
+.cover-stage { padding: 0; background: var(--navy); height: 100%; height: 100dvh; }
+.cover-intro,.cover-surround,.direct-open { display: none; }
+.fold-card { position: absolute; inset: 0; width: 100%; height: 100%; aspect-ratio: auto; }
+.card-ground-shadow { display: none; }
+.card-open-target {
+  position: absolute; inset: 0; width: 100%; height: 100%; z-index: 3;
+  padding: 0; border: 0; background: transparent; transform: translateZ(4px);
+  cursor: pointer; -webkit-appearance: none; appearance: none;
+}
+.card-open-target:focus-visible { outline: 2px solid #f4e7c9; outline-offset: -12px; }
+.card-open-target:active { filter: none; }
+.wax-seal { display: grid; place-items: center; width: clamp(84px,14vmin,120px); height: clamp(84px,14vmin,120px); }
+.card-open-target:hover .seal-shine { opacity: 1; }
+.cover-label { top: max(10%,calc(env(safe-area-inset-top) + 28px)); font-size: clamp(21px,5vmin,42px); }
+.cover-name { font-size: clamp(70px,18vmin,160px); }
+.first-name { top: 22%; } .second-name { top: 58%; }
+.cover-footer { bottom: max(14%,calc(env(safe-area-inset-bottom) + 86px)); font-size: clamp(13px,3vmin,20px); padding-inline: 30px; }
+.door-frame { inset: max(14px,env(safe-area-inset-top)) 14px max(14px,env(safe-area-inset-bottom)); }
+.door img { width: clamp(210px,55vmin,400px); }
+.opening-cue {
+  position: absolute; bottom: calc(env(safe-area-inset-bottom) + 20px); left: 0; right: 0;
+  z-index: 4; margin: 0; color: #e5d7b9; pointer-events: none;
+  font-size: clamp(12px,2.8vmin,16px); padding-inline: 20px; text-align: center;
+}
+@media(max-height:480px) {
+  .cover-label { top: 5%; font-size: 19px; }
+  .cover-name { font-size: clamp(42px,14vh,66px); }
+  .first-name { top: 15%; } .second-name { top: 61%; }
+  .cover-footer { display: none; }
+  .wax-seal { width: 64px; height: 64px; }
+  .opening-cue { bottom: calc(env(safe-area-inset-bottom) + 10px); font-size: 11px; }
+}
 @media(prefers-reduced-motion:reduce) { .door img { animation: none; } .motion-reduced .door { transform: rotateY(0deg); } }
 @media print { .cover-stage { display: none!important; } }
