@@ -1,5 +1,7 @@
 import * as THREE from 'three';
 import { gsap } from 'gsap';
+import { CSS3DRenderer, CSS3DObject } from 'three/examples/jsm/renderers/CSS3DRenderer.js';
+import { createOpeningPaper } from './opening-paper.mjs';
 import { planHandoff } from './opening-handoff.mjs';
 import { OPENING, isLiteDevice, createFrameBudget, enableLiteMotion } from './mobile-motion.mjs';
 
@@ -24,7 +26,23 @@ function texture(image) {
   return map;
 }
 
-function coverTexture(branch, aspect) {
+function drawCoverText(ctx, element, bounds, scale) {
+  const style = getComputedStyle(element);
+  ctx.font = `${style.fontStyle} ${style.fontWeight} ${parseFloat(style.fontSize) * scale}px ${style.fontFamily}`;
+  ctx.fillStyle = style.color; ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+  for (const child of element.childNodes) {
+    if (child.nodeType !== Node.TEXT_NODE || !child.textContent.trim()) continue;
+    const range = document.createRange(); range.selectNodeContents(child);
+    const rect = range.getBoundingClientRect(), text = child.textContent.trim();
+    const metrics = ctx.measureText(text);
+    const ascent = metrics.fontBoundingBoxAscent ?? metrics.actualBoundingBoxAscent;
+    const descent = metrics.fontBoundingBoxDescent ?? metrics.actualBoundingBoxDescent;
+    ctx.fillText(text, (rect.left + rect.width / 2 - bounds.left) * scale,
+      (rect.top + rect.height / 2 - bounds.top) * scale + (ascent - descent) / 2);
+  }
+}
+
+function coverTexture(branch, aspect, card) {
   const height = Math.round(768 * aspect), y = value => value * height / 1064;
   const [image, ctx] = canvas(768, height);
   ctx.fillStyle = '#132d46'; ctx.fillRect(0, 0, 768, height);
@@ -34,21 +52,21 @@ function coverTexture(branch, aspect) {
   ctx.drawImage(branch, -108, height - 579, 414, 647);
   ctx.save(); ctx.translate(768, 0); ctx.scale(-1, 1);
   ctx.drawImage(branch, -108, height - 579, 414, 647); ctx.restore(); ctx.globalAlpha = 1;
-  ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#f4e7c9';
-  ctx.font = '42px "Cormorant Garamond"'; ctx.fillText('Walimatulurus', 384, y(135));
-  ctx.font = '145px "Great Vibes"'; ctx.fillText('Amzar', 384, y(315)); ctx.fillText('Dayana', 384, y(690));
-  ctx.font = '25px Manrope'; ctx.fillStyle = '#e5d7b9';
-  ctx.fillText('Dengan sukacitanya menjemput', 384, y(881)); ctx.fillText('anda seisi keluarga', 384, y(923));
+  const bounds = card.getBoundingClientRect(), scale = 768 / bounds.width;
+  for (const selector of ['.cover-label', '.first-name', '.second-name', '.cover-footer']) {
+    const element = card.querySelector('.door-left ' + selector);
+    if (getComputedStyle(element).display !== 'none') drawCoverText(ctx, element, bounds, scale);
+  }
   return image;
 }
 
-function paperTexture(branch, aspect, inside = false) {
+function paperTexture(branch, aspect) {
   const height = Math.round(768 * aspect), y = value => value * height / 1064;
   const [image, ctx] = canvas(768, height);
   const wash = ctx.createLinearGradient(0, 0, 768, height);
-  wash.addColorStop(0, inside ? '#f7f1e3' : '#f0e8d7');
-  wash.addColorStop(.5, inside ? '#fcfaf4' : '#f6f1e6');
-  wash.addColorStop(1, inside ? '#f6eedf' : '#eee3cd');
+  wash.addColorStop(0, '#f0e8d7');
+  wash.addColorStop(.5, '#f6f1e6');
+  wash.addColorStop(1, '#eee3cd');
   ctx.fillStyle = wash; ctx.fillRect(0, 0, 768, height);
   // Fine paper fibres are baked into the texture once, never per animation frame.
   ctx.fillStyle = '#9c8353';
@@ -62,33 +80,7 @@ function paperTexture(branch, aspect, inside = false) {
   ctx.strokeStyle = '#d8cbb0'; ctx.lineWidth = 1.8; ctx.strokeRect(25, 25, 718, height - 50);
   ctx.strokeStyle = '#c4a56e'; ctx.globalAlpha = .55; ctx.lineWidth = 1;
   ctx.strokeRect(38, 38, 692, height - 76); ctx.globalAlpha = 1;
-  if (inside) {
-    // Botanical corners frame the names, with clear space through the centre.
-    ctx.globalAlpha = .48;
-    ctx.drawImage(branch, -88, height - 625, 310, 585);
-    ctx.save(); ctx.translate(768, height); ctx.rotate(Math.PI); ctx.globalAlpha = .4;
-    ctx.drawImage(branch, -88, height - 625, 310, 585); ctx.restore(); ctx.globalAlpha = 1;
-    // An engraved pair of rings replaces the empty area above the introduction.
-    ctx.save(); ctx.translate(384, y(110)); ctx.strokeStyle = '#9b7a3e'; ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.arc(-18, 0, 27, 0, Math.PI * 2); ctx.stroke();
-    ctx.beginPath(); ctx.arc(18, 0, 27, 0, Math.PI * 2); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(-27, -27); ctx.lineTo(-34, -38); ctx.lineTo(-27, -46);
-    ctx.lineTo(-9, -46); ctx.lineTo(-2, -38); ctx.lineTo(-9, -27); ctx.closePath(); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(-34, -38); ctx.lineTo(-2, -38); ctx.stroke(); ctx.restore();
-    ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#20364a';
-    ctx.font = '38px "Cormorant Garamond"'; ctx.fillText('Dengan penuh kesyukuran', 384, y(215));
-    ctx.font = '135px "Great Vibes"'; ctx.fillText('Amzar', 384, y(410)); ctx.fillText('Dayana', 384, y(655));
-    ctx.font = '60px "Cormorant Garamond"'; ctx.fillStyle = '#806232'; ctx.fillText('&', 384, y(528));
-    ctx.fillStyle = '#20364a'; ctx.font = '38px "Cormorant Garamond"';
-    ctx.fillText('menjemput anda meraikan', 384, y(810)); ctx.fillText('hari istimewa kami.', 384, y(866));
-    ctx.strokeStyle = '#b69558'; ctx.lineWidth = 1.2;
-    ctx.beginPath(); ctx.moveTo(250, y(956)); ctx.lineTo(358, y(956));
-    ctx.moveTo(410, y(956)); ctx.lineTo(518, y(956)); ctx.stroke();
-    ctx.save(); ctx.translate(384, y(956)); ctx.rotate(Math.PI / 4);
-    ctx.strokeRect(-7, -7, 14, 14); ctx.restore();
-  } else {
-    ctx.globalAlpha = .42; ctx.drawImage(branch, -15, height - 614, 360, 590);
-  }
+  ctx.globalAlpha = .42; ctx.drawImage(branch, -15, height - 614, 360, 590);
   return texture(image);
 }
 
@@ -136,12 +128,12 @@ export async function prepareWebGLCard(cover, card, shouldPrepare = () => true) 
   light.shadow.mapSize.set(512, 512);
   Object.assign(light.shadow.camera, { left: -5, right: 5, top: 5, bottom: -5, near: .1, far: 20 });
   light.shadow.bias = -.001; scene.add(light);
-  const front = coverTexture(branch, aspect);
+  const front = coverTexture(branch, aspect, card);
   const paper = paperTexture(floral, aspect);
-  const basePaper = paperTexture(floral, aspect, true);
   const edge = new THREE.MeshStandardMaterial({ color: '#ccb992', roughness: .9 });
   const base = new THREE.Mesh(new THREE.BoxGeometry(W, H, .016), [edge, edge, edge, edge,
-    new THREE.MeshStandardMaterial({ map: basePaper, roughness: .92 }), edge]);
+    new THREE.ShadowMaterial({ opacity: .15 }), edge]);
+  base.position.z = -.008;
   base.receiveShadow = true; root.add(base);
   const leaves = {};
   for (const side of ['left', 'right']) {
@@ -172,14 +164,25 @@ export async function prepareWebGLCard(cover, card, shouldPrepare = () => true) 
   let activeFinish;
   let paperScaleY = 1;
   let baseCameraZ = 1, baseX = 0, baseY = 0, handoff;
-  let focusTarget;
+  let paperTarget, livePaper, paperRenderer, paperObject, paperRoot, paperScene;
+  let planeAspect = 1;
+  let openingScale = window.matchMedia('(max-width: 600px)').matches ? .68 : .8;
   const pose = { handoff: 0 };
   const zoom = { scale: 1 };
   const applyScale = () => {
-    root.scale.set(zoom.scale, paperScaleY * zoom.scale, zoom.scale);
+    planeAspect = 1 + ((handoff?.aspectScale ?? 1) - 1) * pose.handoff;
+    root.scale.set(zoom.scale, paperScaleY * zoom.scale * planeAspect, zoom.scale);
     camera.position.z = baseCameraZ + ((handoff?.cameraZ ?? baseCameraZ) - baseCameraZ) * pose.handoff;
-    root.position.x = baseX;
+    root.position.x = baseX + ((handoff?.paperX ?? baseX) - baseX) * pose.handoff;
     root.position.y = baseY + ((handoff?.paperY ?? baseY) - baseY) * pose.handoff;
+  };
+  const render = () => {
+    if (disposed) return;
+    applyScale(); renderer.render(scene, camera);
+    if (paperRenderer) {
+      paperRoot.position.copy(root.position); paperRoot.quaternion.copy(root.quaternion); paperRoot.scale.copy(root.scale);
+      paperRenderer.render(paperScene, camera);
+    }
   };
   renderer.domElement.addEventListener('webglcontextlost', event => {
     event.preventDefault();
@@ -198,15 +201,17 @@ export async function prepareWebGLCard(cover, card, shouldPrepare = () => true) 
     camera.updateProjectionMatrix(); renderer.setSize(bounds.width, bounds.height);
     baseX = ((paperBounds.left + paperBounds.width / 2) - (bounds.left + bounds.width / 2)) * units;
     baseY = -((paperBounds.top + paperBounds.height / 2) - (bounds.top + bounds.height / 2)) * units;
-    if (focusTarget) {
-      const target = focusTarget.getBoundingClientRect();
-      handoff = planHandoff({ cameraZ: baseCameraZ, openedScale: window.matchMedia('(max-width: 600px)').matches ? .68 : .8,
-        cardWidth: paperBounds.width, paperHeight: H * paperScaleY, viewportHeight: bounds.height,
-        nameCenterY: target.top + target.height / 2 - bounds.top,
-        nameFontSize: Number.parseFloat(getComputedStyle(focusTarget).fontSize) });
+    if (paperTarget) {
+      const target = livePaper.measure();
+      handoff = planHandoff({ cameraZ: baseCameraZ, openedScale: openingScale,
+        cardWidth: paperBounds.width, cardHeight: paperBounds.height,
+        viewportWidth: bounds.width, viewportHeight: bounds.height,
+        targetLeft: target.left - bounds.left, targetTop: target.top - bounds.top,
+        targetWidth: target.width, targetHeight: target.height });
+      paperObject.scale.set(W / target.width, H / target.height, 1);
+      paperRenderer.setSize(bounds.width, bounds.height);
     }
-    applyScale();
-    renderer.render(scene, camera);
+    render();
   };
   // Preserve screen alignment through orientation changes; idle frames are not rendered.
   window.addEventListener('resize', resize);
@@ -237,23 +242,39 @@ export async function prepareWebGLCard(cover, card, shouldPrepare = () => true) 
       });
     });
     geometries.forEach(item => item.dispose()); materials.forEach(item => item.dispose()); maps.forEach(item => item.dispose());
-    renderer.dispose(); renderer.domElement.remove(); cover.classList.remove('webgl-active');
+    renderer.dispose(); renderer.domElement.remove(); paperRenderer?.domElement.remove(); livePaper?.dispose(); cover.classList.remove('webgl-active');
   }
   return {
     dispose,
-    play({ onReveal, onFinish, focusTarget: target }) {
+    play({ onReveal, onFinish, paperTarget: target }) {
       if (disposed) throw new Error('Disposed card scene');
       activeFinish = onFinish;
       renderer.domElement.style.opacity = '0';
       cover.append(renderer.domElement); cover.classList.add('webgl-active', 'is-opening');
       const small = window.matchMedia('(max-width: 600px)').matches;
       const openedScale = small ? .68 : .8;
-      focusTarget = target; resize();
+      openingScale = openedScale;
+      const currentBounds = card.getBoundingClientRect();
+      if (Math.abs(currentBounds.width - initialBounds.width) > .5 || Math.abs(currentBounds.height - initialBounds.height) > .5) {
+        const updatedCover = coverTexture(branch, currentBounds.height / currentBounds.width, card);
+        for (const side of ['left', 'right']) {
+          const material = leaves[side].children[0].material[4];
+          material.map.dispose(); material.map = halfTexture(updatedCover, side); material.needsUpdate = true;
+        }
+      }
+      paperTarget = target;
+      livePaper = createOpeningPaper(cover, target);
+      paperRenderer = new CSS3DRenderer(); paperRenderer.domElement.className = 'opening-paper-renderer';
+      paperRenderer.domElement.style.opacity = '0'; cover.prepend(paperRenderer.domElement);
+      paperScene = new THREE.Scene(); paperRoot = new THREE.Group(); paperScene.add(paperRoot);
+      paperObject = new CSS3DObject(livePaper.element); paperRoot.add(paperObject);
+      resize();
       timeline = gsap.timeline({ onUpdate: () => {
-        budget.sample(performance.now()); applyScale(); renderer.render(scene, camera);
+        budget.sample(performance.now()); render();
       }, onComplete: () => { onFinish(); dispose(); } });
       // Blend matching DOM/Canvas covers before either hinge starts rotating.
-      timeline.to(renderer.domElement, { opacity: 1, duration: .22, ease: 'sine.inOut' }, 0);
+      timeline.to([renderer.domElement, paperRenderer.domElement], { opacity: 1, duration: .22, ease: 'sine.inOut' }, 0);
+      timeline.to(cover, { backgroundColor: '#eae6dd', duration: .9, ease: 'sine.inOut' }, .3);
       timeline.to(card, { opacity: 0, duration: .22, ease: 'sine.inOut' }, 0);
       timeline.to(seal.position, { z: .5, y: .25, duration: OPENING.seal, ease: 'power2.in' }, 0);
       timeline.to(seal.scale, { x: 0, y: 0, z: 0, duration: .32, ease: 'power2.in' }, .2);
@@ -265,10 +286,10 @@ export async function prepareWebGLCard(cover, card, shouldPrepare = () => true) 
       timeline.to(root.rotation, { x: 0, duration: .9, ease: 'power1.inOut' }, 1.4);
       timeline.to(zoom, { scale: openedScale, duration: 2.4, ease: 'power1.inOut' }, .15);
       // Move through the opened paper toward the actual names in the page.
-      timeline.to(pose, { handoff: 1, duration: .95, ease: 'power2.inOut' }, OPENING.approach);
-      timeline.call(onReveal, [], OPENING.reveal);
+      timeline.to(pose, { handoff: 1, duration: 1.0, ease: 'power2.inOut' }, OPENING.approach);
+      timeline.call(() => onReveal(livePaper.names), [], OPENING.write);
       timeline.to(cover, { opacity: 0, duration: OPENING.fade, ease: 'sine.inOut' }, OPENING.reveal);
-      return { cancel() { timeline.kill(); gsap.set([cover, card], { clearProps: 'opacity' }); dispose(); } };
+      return { cancel() { timeline.kill(); gsap.set([cover, card], { clearProps: 'opacity,backgroundColor' }); dispose(); } };
     }
   };
 }

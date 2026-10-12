@@ -19,3 +19,39 @@
 @media(max-height:580px){.fold-card{width:min(270px,calc((100svh - 105px)*.722))}.cover-intro{font-size:15px;margin-bottom:10px}.cover-name{font-size:clamp(30px,9svh,60px)}.cover-label{font-size:15px}.cover-footer{font-size:9px}.wax-seal{width:58px;height:58px}.seal-monogram{font-size:21px}.seal-monogram span{font-size:12px}.opening-cue{margin-top:10px;font-size:11px}.opening-cue .icon,.direct-open{display:none}.cover-stage{padding:12px}.card-inside p{font-size:13px}.inside-names{font-size:42px;margin:10px 0 16px}.inside-flourish{width:26px;height:20px;margin-bottom:6px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation:none!important;transition:none!important}.is-opening .door-left{transform:translateX(-100%)}.is-opening .door-right{transform:translateX(100%)}.is-opening .fold-card{transform:none}}
 @media print{body{background:white}.cover-stage,.page-grain,.back-to-cover,.event-tabs,.event-actions,.waze-link,.scroll-cue,.countdown-wrap,.share-invitation,.toast,dialog,.date-list{display:none!important}.invitation-shell{padding:0;max-width:100%;opacity:1!important;transform:none!important}.invitation-paper{border:none;box-shadow:none}.greeting{min-height:0;padding:30px 20px}.couple-names{font-size:50px;margin:12px 0;flex-direction:row;justify-content:center;gap:15px}.couple-names .name-ampersand{font-size:24px}.greeting-close,.invitation-message{font-size:12px}.salutation{font-size:16px}.fine-ornament{margin:8px 0}.greeting:before,.greeting:after,.paper-botanical{display:none}.celebrations{padding:20px}.section-heading,.event-panel,.all-dates{display:none}.print-events{display:block!important}.print-event{break-inside:avoid;text-align:center;padding:14px;border-bottom:1px solid var(--line)}.print-event h3{font-family:var(--serif);font-size:24px;margin:0 0 6px}.print-event p{margin:3px 0;font-size:12px}.blessing{margin:20px;background:white;padding:15px;break-inside:avoid}.blessing p{font-size:14px;margin:10px 0}.blessing-rings{display:none}.paper-footer{padding:15px}.footer-year{margin:0}}
+
+/* Keep motion attached to the invitation's typography and fine rules. */
+.awaiting-scroll { opacity: 0; }
+.tab-indicator { display: none; }
+.has-tab-indicator .tab-indicator {
+  display: block; position: absolute; left: 0; bottom: -1px; height: 2px;
+  width: calc((100% - 8px) / 3); background: var(--navy); pointer-events: none;
+  transform: translateX(calc(var(--active-tab, 1) * (100% + 4px)));
+  transition: transform 380ms cubic-bezier(.22,1,.36,1);
+}
+.has-tab-indicator button[aria-selected="true"] { border-bottom-color: transparent; }
+.date-list.timeline-motion li:not(:last-child)::after {
+  background: var(--gold-dark); opacity: .48; transform: scaleY(var(--line-progress, 0)); transform-origin: top;
+}
+.timeline-motion .timeline-dot { transition: background-color 400ms ease, box-shadow 500ms ease; }
+.timeline-motion .milestone-reached .timeline-dot { background: var(--gold); box-shadow: 0 0 0 4px #c3a36b13; }
+body.sheet-open { position: fixed; width: 100%; }
+.calendar-dialog[open] { animation: none; }
+.calendar-dialog { overscroll-behavior: contain; }
+.sheet-handle { display: none; }
+@media(max-width:600px) {
+  .calendar-dialog {
+    position: fixed; inset: auto 0 0; margin: 0 auto; width: 100%; max-width: 600px;
+    border-radius: 22px 22px 0 0; border-bottom: 0; max-height: calc(90dvh - env(safe-area-inset-top));
+    padding: 0 24px calc(22px + env(safe-area-inset-bottom));
+  }
+  .sheet-handle { display: grid; place-items: center; height: 32px; margin: 0 -24px 4px; touch-action: none; cursor: grab; }
+  .sheet-handle span { width: 36px; height: 4px; border-radius: 4px; background: #b6ae9e; }
+  .dialog-heading h2 { font-size: 29px; }
+}
+@media(prefers-reduced-motion:reduce) {
+  .awaiting-scroll { opacity: 1; }
+  .tab-indicator { transition: none; }
+  .date-list.timeline-motion li:not(:last-child)::after { transform: none; }
+}
+@media print { .awaiting-scroll { opacity: 1!important; } .sheet-handle { display: none; } }

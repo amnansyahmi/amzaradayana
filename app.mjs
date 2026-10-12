@@ -1,5 +1,8 @@
 import { events, getEvent, mapUrl, wazeUrl, calendarFile, googleCalendarUrl, countdown } from './events.mjs';
 import { animateCardOpening } from './card-opening.mjs';
+import { mountCalligraphy, revealCalligraphy } from './calligraphy.mjs';
+import { mountScrollMotion } from './scroll-motion.mjs';
+import { mountCalendarSheet } from './calendar-sheet.mjs';
 import { createAmbientMotion, createPaperTransition } from './paper-motion.mjs';
 import { mountEventSwipe, mountCoverViewport } from './mobile-motion.mjs';
 
@@ -17,35 +20,37 @@ let opening;
 let webglCard;
 let webglPreparing;
 let smoothScroll;
-let effectsModule, effectsLoading, ringsScene, namesEffect;
-let revealStarted = false, animateNamesOnReveal = false, fullEffectsRequested = false;
+let effectsLoading, ringsScene, namesEffect;
+let revealStarted = false, animateNamesOnReveal = false;
 let ambientMotion;
 const paperTransition = createPaperTransition(panel);
 const coverViewport = mountCoverViewport(cover);
+mountCalligraphy(byId('couple-names'));
+const scrollMotion = mountScrollMotion(shell, motionPreference);
+const calendarSheet = mountCalendarSheet(dialog, motionPreference);
 
 function warmInvitationEffects() {
   if (effectsLoading) return effectsLoading;
-  effectsLoading = import('./invitation-effects.mjs').then(module => { effectsModule = module; return module; }).catch(() => null);
+  effectsLoading = import('./invitation-effects.mjs').catch(() => null);
   return effectsLoading;
 }
 
-function revealDetails() {
-  document.body.classList.remove('cover-active');
+function revealDetails(mirror) {
+  document.body.classList.add('invitation-revealed');
   if (revealStarted) return;
   revealStarted = true;
   ambientMotion?.refresh();
   const composition = byId('couple-composition');
   composition.classList.remove('names-awaiting');
   if (animateNamesOnReveal) {
-    if (effectsModule) namesEffect = effectsModule.revealNames(byId('couple-names'));
-    else composition.classList.add('names-reveal');
+    namesEffect = revealCalligraphy(byId('couple-names'), { mirror });
   }
 }
 
 function mountInvitationRings() {
   warmInvitationEffects().then(module => {
     if (!module || !cover.hidden || ringsScene) return;
-    try { ringsScene = module.mountRings(byId('rings-stage'), { reducedMotion: motionPreference.matches && !fullEffectsRequested }); }
+    try { ringsScene = module.mountRings(byId('rings-stage'), { reducedMotion: motionPreference.matches }); }
     catch { /* The inline ring illustration remains available without WebGL. */ }
   });
 }
@@ -112,6 +117,9 @@ function selectEvent(id, animate = true) {
     tab.setAttribute('aria-selected', String(active));
     tab.tabIndex = active ? 0 : -1;
   }
+  const tabs = document.querySelector('.event-tabs');
+  tabs.style.setProperty('--active-tab', events.findIndex(event => event.id === selected.id));
+  tabs.classList.add('has-tab-indicator');
   panel.setAttribute('aria-labelledby', `tab-${selected.id}`);
   panel.dataset.theme = selected.theme;
   byId('venue-art').setAttribute('href', `assets/venues.svg#${selected.icon}`);
@@ -168,6 +176,7 @@ document.querySelectorAll('[data-jump]').forEach(button => {
 
 function finishOpening() {
   cover.hidden = true;
+  document.body.classList.remove('cover-active');
   opening?.cancel(); opening = null;
   webglCard?.dispose(); webglCard = null;
   cover.style.opacity = '';
@@ -181,6 +190,7 @@ function finishOpening() {
   updateDesktopScroll();
   // The opening renderer is disposed before the ring renderer is created.
   mountInvitationRings();
+  scrollMotion.start();
 }
 
 mountEventSwipe(panel, direction => {
@@ -194,14 +204,12 @@ function openCard(immediate = false, forceMotion = false) {
   isOpening = true;
   ambientMotion?.refresh();
   revealStarted = false;
-  fullEffectsRequested = forceMotion && !immediate;
-  animateNamesOnReveal = (!motionPreference.matches || fullEffectsRequested) && !immediate;
-  byId('couple-composition').classList.toggle('names-explicit-motion', fullEffectsRequested);
+  animateNamesOnReveal = !motionPreference.matches && !immediate;
   byId('couple-composition').classList.toggle('names-awaiting', animateNamesOnReveal);
   openButton.disabled = true;
   if (immediate) return finishOpening(); // Only an explicit #majlis deep link skips the cover.
   const callbacks = { onReveal: revealDetails, onFinish: finishOpening,
-    focusTarget: byId('couple-names').querySelector('span') };
+    paperTarget: document.querySelector('.invitation-shell .greeting') };
   if (webglCard && (!motionPreference.matches || forceMotion)) {
     try { opening = webglCard.play(callbacks); return; }
     catch { webglCard.dispose(); webglCard = null; }
@@ -214,6 +222,7 @@ function openCard(immediate = false, forceMotion = false) {
 }
 
 function replayCard() {
+  scrollMotion.pause();
   paperTransition.cancel();
   ringsScene?.dispose(); ringsScene = null;
   namesEffect?.cancel(); namesEffect = null;
@@ -232,6 +241,7 @@ function replayCard() {
   cover.classList.remove('is-opening', 'is-leaving', 'opening-css', 'motion-reduced', 'webgl-active');
   cover.style.opacity = '';
   document.body.classList.add('cover-active');
+  document.body.classList.remove('invitation-revealed');
   cover.hidden = false;
   coverViewport.refresh();
   ambientMotion?.refresh();
@@ -252,8 +262,8 @@ motionPreference.addEventListener('change', () => {
   ambientMotion?.refresh();
   if (motionPreference.matches) paperTransition.cancel();
   warmCardScene();
-  ringsScene?.setReducedMotion(motionPreference.matches && !fullEffectsRequested);
-  if (motionPreference.matches && !fullEffectsRequested) {
+  ringsScene?.setReducedMotion(motionPreference.matches);
+  if (motionPreference.matches) {
     namesEffect?.cancel(); namesEffect = null;
     byId('couple-composition').classList.remove('names-awaiting', 'names-reveal');
   }
@@ -263,14 +273,13 @@ window.addEventListener('resize', updateDesktopScroll);
 
 byId('save-date').addEventListener('click', () => {
   if (typeof dialog.showModal === 'function') {
-    document.body.classList.add('sheet-open');
     smoothScroll?.destroy(); smoothScroll = null;
-    dialog.showModal();
+    calendarSheet.open();
   } else {
     downloadCalendar();
   }
 });
-byId('close-calendar').addEventListener('click', () => dialog.close());
+byId('close-calendar').addEventListener('click', () => calendarSheet.close());
 dialog.addEventListener('close', () => {
   document.body.classList.remove('sheet-open');
   updateDesktopScroll();
@@ -279,7 +288,7 @@ dialog.addEventListener('close', () => {
 dialog.addEventListener('click', event => {
   const bounds = dialog.getBoundingClientRect();
   if (event.target === dialog && (event.clientX < bounds.left || event.clientX > bounds.right ||
-      event.clientY < bounds.top || event.clientY > bounds.bottom)) dialog.close();
+      event.clientY < bounds.top || event.clientY > bounds.bottom)) calendarSheet.close();
 });
 
 function downloadCalendar() {

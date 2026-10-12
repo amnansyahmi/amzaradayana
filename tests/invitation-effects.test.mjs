@@ -23,16 +23,20 @@ test('the paired rings include one plain band and one small faceted diamond', ()
   geometries.forEach(geometry => geometry.dispose()); gold.dispose(); stone.dispose();
 });
 
-test('the camera moves closer and aligns the printed name with the mobile heading', () => {
-  for (const [width, height] of [[320,568],[390,700],[430,850]]) {
-    const inputs = { cameraZ: 9, openedScale: .68, cardWidth: width,
-      paperHeight: 2.8 * height / width, viewportHeight: height, nameCenterY: height * .43, nameFontSize: 76 };
+test('the final paper plane matches every edge of the live greeting across viewport sizes', () => {
+  for (const [width, height, targetWidth, targetHeight] of [[320,568,290,780],[390,844,360,790],[430,932,400,790],[1440,900,710,850],[844,390,710,900]]) {
+    const inputs = { cameraZ: 9, openedScale: width <= 600 ? .68 : .8,
+      cardWidth: width, cardHeight: height, viewportWidth: width, viewportHeight: height,
+      targetLeft: (width - targetWidth) / 2, targetTop: 1, targetWidth, targetHeight };
     const plan = planHandoff(inputs);
-    assert.ok(plan.cameraZ > 0 && plan.cameraZ < inputs.cameraZ);
-    assert.ok(Number.isFinite(plan.paperY));
-    const printedTextY = inputs.paperHeight * (.5 - 410 / 1064) * inputs.openedScale;
-    const finalUnits = 2.8 / width * (plan.cameraZ / inputs.cameraZ);
-    const actualScreenY = height / 2 - (plan.paperY + printedTextY) / finalUnits;
-    assert.ok(Math.abs(actualScreenY - inputs.nameCenterY) < 1e-8);
+    assert.ok(plan.cameraZ > 0 && Number.isFinite(plan.cameraZ));
+    const units = 2.8 / width * (plan.cameraZ / inputs.cameraZ);
+    const actualWidth = 2.8 * inputs.openedScale / units;
+    const actualHeight = 2.8 * height / width * inputs.openedScale * plan.aspectScale / units;
+    const left = width / 2 + plan.paperX / units - actualWidth / 2;
+    const top = height / 2 - plan.paperY / units - actualHeight / 2;
+    for (const [actual, expected] of [[actualWidth,targetWidth],[actualHeight,targetHeight],[left,inputs.targetLeft],[top,inputs.targetTop]]) {
+      assert.ok(Math.abs(actual - expected) < 1e-8, `${actual} should match ${expected}`);
+    }
   }
 });

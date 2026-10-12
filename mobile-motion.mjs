@@ -1,5 +1,5 @@
 export const OPENING = Object.freeze({ seal: .48, left: .26, right: .4,
-  hinge: 2.15, approach: 2.6, reveal: 2.95, fade: .8, end: 3.75 });
+  hinge: 2.05, approach: 2.3, write: 2.65, reveal: 3.3, fade: .4, end: 3.7 });
 
 export function isLiteDevice(nav = globalThis.navigator) {
   return Boolean(nav?.connection?.saveData || (nav?.deviceMemory && nav.deviceMemory <= 4) ||

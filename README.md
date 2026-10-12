@@ -11,7 +11,11 @@ A mobile-first Malay wedding invitation with a fullscreen navy gatefold cover. T
 - Self-hosted fonts, keyboard navigation, progressive fallback without JavaScript, and printable details for all events. Tapping the card explicitly plays the full fold even with Reduce Motion enabled; ambient/UI effects still respect that preference.
 - Desktop Lenis scrolling; mobile uses native vertical touch scrolling with pinch/double-tap zoom disabled.
 - A subtle pair of procedural 3D rings behind the names, one with a faceted diamond. Rings turn with scrolling and pause offscreen or in a background tab; an SVG fallback is included.
-- Names appear in the sequence Amzar, ampersand, Dayana. The opening camera approaches the printed names before blending into the page. A deliberate full-animation card tap also opts into the name/ring effects; direct detail links follow reduced-motion preferences.
+- A live copy of the invitation is the moving paper insert. Its final position matches the real greeting; the CSS fallback uses the same layout. Copies have private SVG IDs and are removed after opening.
+- Amzar and Dayana write on with SVG pen masks over the existing Great Vibes outlines. Connected script stays crisp at all screen sizes; readable text remains available without JavaScript. Handwriting, florals and ring highlights respect reduced motion.
+- Individual floral leaves, stems and blooms breathe at different speeds and pause offscreen. A light-device mode keeps only the smaller set of bloom/stem effects.
+- Sections reveal once as they enter view, the selected-event underline slides between tabs, and the event timeline draws with native scrolling.
+- On mobile, the calendar opens as a bottom sheet with a downward drag to dismiss. Closing restores the original scroll position and keyboard focus; desktop keeps a centred dialog.
 
 ## Event source of truth
 
@@ -39,3 +43,12 @@ Serve `dist/` with any static host. Import this repository into Vercel: the incl
 Optional query string: `?majlis=pertunangan`, `?majlis=pernikahan`, or `?majlis=persandingan` preselects an event while preserving the closed-card entrance. `#majlis` opens directly to the details.
 
 The fonts are distributed under the SIL Open Font License; see `assets/fonts/`. Venue drawings are illustrative, not photographs or accurate architectural plans.
+
+## Artwork maintenance
+
+The shipped artwork needs no generation step during deployment. Optional authoring scripts regenerate the checked-in assets:
+
+- `python scripts/prepare-calligraphy.py` uses `fontTools` and the bundled OFL font to regenerate `calligraphy-art.mjs`. Pen guides are authored in that script.
+- `python scripts/prepare-florals.py` rebuilds the two inline botanical SVGs from `assets/floral-corner.svg`.
+
+Opening, replay, responsive layout, event tabs, calendar dismissal, offscreen motion and reduced motion are checked in browser verification. Automated mobile viewports do not replace testing on a physical iPhone.

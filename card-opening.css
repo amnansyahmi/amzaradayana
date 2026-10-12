@@ -184,7 +184,10 @@ html.lenis,html.lenis body { height: auto; }
 .rings-stage { position: absolute; inset: -8px -14px; z-index: -1; opacity: .17; pointer-events: none; }
 .rings-stage canvas { display: block; width: 100%; height: 100%; }
 .ring-fallback { position: absolute; width: 84%; height: 84%; top: 8%; left: 8%; }
-.ring-webgl-ready .ring-fallback { display: none; }
+.ring-fallback { transition: opacity .5s ease; }
+.ring-webgl-ready .ring-fallback { opacity: 0; }
+.rings-stage canvas { animation: ring-arrival .7s ease both; }
+@keyframes ring-arrival { from { opacity: 0; } to { opacity: 1; } }
 .names-awaiting .couple-names>span { opacity: 0; }
 .names-reveal .couple-names>span { animation: name-arrival .85s cubic-bezier(.22,1,.36,1) both; }
 .names-reveal .couple-names>span:nth-child(2) { animation-delay: .3s; }
@@ -231,3 +234,52 @@ html.lenis,html.lenis body { height: auto; }
 
 .cover-stage { bottom: auto; height: var(--cover-height,100dvh); }
 .event-panel { touch-action: pan-y; }
+
+/* One continuous paper surface: the moving insert and the page share their DOM. */
+.invitation-shell { transition: none; }
+.cover-active .invitation-shell { transform: none; }
+.cover-active.invitation-revealed .invitation-shell { opacity: 1; }
+.opening-paper-renderer { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+.opening-paper-surface { overflow: hidden; background: var(--paper); pointer-events: none!important; backface-visibility: hidden; }
+.opening-paper-surface .greeting { min-height: 0; }
+.fallback-paper { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+.has-live-paper .card-inside { visibility: hidden; }
+
+/* Crisp font outlines revealed by a pen-shaped SVG mask, never split text glyphs. */
+.name-word { position: relative; height: 1.15em; }
+.name-fallback { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.name-calligraphy { display: block; height: 1.15em; max-width: none; overflow: visible; }
+.ink-outline { mask: none; }
+.names-inking .ink-outline { mask: var(--ink-mask); }
+.names-awaiting .name-calligraphy,.names-awaiting .name-ampersand { visibility: hidden; }
+.names-inking .name-word { opacity: 1; }
+
+/* Independent botanical parts retain the existing watercolour palette. */
+.paper-botanical { height: auto; overflow: visible; animation: none; }
+.floral-leaf,.floral-bloom,.floral-stem {
+  transform-box: view-box; transform-origin: var(--pivot);
+  animation: leaf-breathe var(--breeze-time,12s) ease-in-out var(--breeze-delay,0s) infinite;
+  animation-play-state: paused;
+}
+.floral-bloom { animation-name: bloom-breathe; }
+.floral-stem { animation-name: stem-breathe; }
+.ambient-running .floral-leaf,.ambient-running .floral-bloom,.ambient-running .floral-stem { animation-play-state: running; }
+@keyframes leaf-breathe { 0%,100% { transform: rotate(-1.5deg); } 50% { transform: rotate(1.8deg); } }
+@keyframes bloom-breathe { 0%,100% { transform: rotate(-.6deg) translateY(0); } 50% { transform: rotate(.8deg) translateY(-1px); } }
+@keyframes stem-breathe { 0%,100% { transform: rotate(-.15deg); } 50% { transform: rotate(.25deg); } }
+.effects-lite .floral-leaf { animation: none; }
+@media(prefers-reduced-motion:reduce) {
+  .floral-leaf,.floral-bloom,.floral-stem { animation: none!important; }
+  .ink-outline { mask: none!important; }
+}
+@media print {
+  .names-awaiting .name-calligraphy,.names-awaiting .name-ampersand { visibility: visible!important; }
+  .names-awaiting .couple-names>span { opacity: 1!important; }
+  .ink-outline { mask: none!important; }
+  .opening-paper-renderer { display: none; }
+}
+
+.paper-botanical-right { transform: rotate(180deg); transform-origin: center; }
+.greeting-close { max-width: none; text-wrap: balance; }
+
+@media(max-width:600px) { .paper-botanical-right { width: 180px; top: -90px; right: -75px; opacity: .3; } }
