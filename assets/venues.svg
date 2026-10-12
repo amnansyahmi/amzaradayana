@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg">
+  <symbol id="rings" viewBox="0 0 320 150">
+    <g fill="none" stroke="currentColor" stroke-width="1.3">
+      <circle cx="133" cy="90" r="37"/><circle cx="133" cy="90" r="32"/>
+      <circle cx="183" cy="90" r="37"/><circle cx="183" cy="90" r="32"/>
+      <path d="m128 48-8-13 9-12h17l9 12-8 13m-27-13h35m-26-12 8 12 9-12m-9 12v13M136 15V7m-17 12-6-6m38 6 6-6"/>
+      <path d="M60 132c23-9 43-4 50 3M246 132c-23-9-43-4-50 3M79 127c0-13 9-17 18-15-2 10-9 16-18 15m157 0c0-13-9-17-18-15 2 10 9 16 18 15"/>
+    </g>
+  </symbol>
+  <symbol id="glasshouse" viewBox="0 0 320 150">
+    <g fill="none" stroke="currentColor" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M63 131V64l94-47 96 47v67M53 66l104-54 106 54M68 64h180M64 86h187M64 108h187M93 52v79m31-94v94m33-112v112m33-95v95m32-78v78M107 129V72h100v57M139 129V90q18-28 36 0v39M157 88v41M47 132h219"/>
+      <path d="M24 132V73m0 22C4 85 1 66 12 50m12 28C10 59 14 37 29 27m-4 62C47 73 48 53 39 42m-15 64C6 104 1 93 3 82m21 27c19-7 27-20 24-34M287 132V69m0 24c-17-10-21-29-11-41m11 25c-8-18-3-36 10-45m-10 72c20-9 25-27 18-41m-18 52c-14-2-22-13-22-24"/>
+      <path d="M86 130v-11m-5 1q5-9 10 0M228 130v-11m-5 1q5-9 10 0"/>
+    </g>
+  </symbol>
+  <symbol id="garden" viewBox="0 0 320 150">
+    <g fill="none" stroke="currentColor" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M65 131V62h190v69M59 62l100-38 101 38M77 67v59m15-59v59m28-59v59m80-59v59m28-59v59m15-59v59M128 131V81q32-30 64 0v50m-57 0V86q25-23 50 0v45M75 76h49m72 0h49M75 116h49m72 0h49M56 132h210"/>
+      <path d="M25 132V70m0 36C7 102 2 88 7 79m18 21c21-13 25-32 17-45M25 81C13 63 16 42 32 31m-7 85c15-3 25-13 27-25M294 132V71m0 24c-19-11-23-27-14-40m14 50c18-10 23-25 18-39m-18 20c13-17 12-34-1-49m1 81c-14-3-24-14-24-25"/>
+      <path d="M139 65c-5-16-1-24 5-25m32 25c5-16 1-24-5-25m-28 10q15-10 30 0"/>
+    </g>
+  </symbol>
+</svg>

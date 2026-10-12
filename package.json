@@ -1,0 +1,12 @@
+{
+  "name": "amzar-dayana-invitation",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node --test",
+    "check": "node --check app.mjs && node --check events.mjs && node --check scripts/build.mjs"
+  },
+  "engines": { "node": ">=20" }
+}

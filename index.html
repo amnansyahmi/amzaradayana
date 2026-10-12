@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="ms">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#132d46">
+    <meta name="description" content="Dengan sukacitanya menjemput anda meraikan Amzar & Dayana. Buka kad jemputan untuk butiran pertunangan, pernikahan dan persandingan.">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Undangan Amzar & Dayana">
+    <meta property="og:description" content="Sebuah ikatan, sebuah perjalanan. Anda dijemput untuk meraikan hari istimewa kami.">
+    <meta property="og:image" content="/assets/social-card.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <title>Undangan Amzar & Dayana</title>
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+    <link rel="preload" href="assets/fonts/great-vibes-400.woff" as="font" type="font/woff" crossorigin>
+    <link rel="preload" href="assets/fonts/cormorant-garamond-400.woff" as="font" type="font/woff" crossorigin>
+    <link rel="stylesheet" href="styles.css">
+    <script type="module" src="app.mjs"></script>
+  </head>
+  <body>
+    <div class="page-grain" aria-hidden="true"></div>
+
+    <section class="cover-stage" id="cover" aria-label="Kad jemputan Amzar dan Dayana" hidden>
+      <div class="cover-surround" aria-hidden="true">
+        <img class="surround-branch branch-left" src="assets/botanical.svg" alt="">
+        <img class="surround-branch branch-right" src="assets/botanical.svg" alt="">
+      </div>
+      <p class="cover-intro">Sebuah jemputan, khas buat anda</p>
+      <div class="fold-card" id="fold-card">
+        <div class="card-inside" aria-hidden="true">
+          <svg class="inside-flourish" viewBox="0 0 48 28"><path d="M24 22C2 9 8-3 18 4l6 6 6-6C40-3 46 9 24 22Z" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>
+          <p>Dengan penuh kesyukuran</p>
+          <span class="inside-names">Amzar<br><span>&</span><br>Dayana</span>
+          <p>menjemput anda meraikan<br>hari istimewa kami.</p>
+        </div>
+        <div class="door door-left" aria-hidden="true"><div class="door-frame"></div><img src="assets/botanical.svg" alt=""></div>
+        <div class="door door-right" aria-hidden="true"><div class="door-frame"></div><img src="assets/botanical.svg" alt=""></div>
+        <div class="cover-lettering" aria-hidden="true">
+          <p class="cover-label">Walimatulurus</p>
+          <span class="cover-name first-name">Amzar</span>
+          <span class="cover-name second-name">Dayana</span>
+          <p class="cover-footer">Dengan sukacitanya menjemput<br>anda seisi keluarga</p>
+        </div>
+        <button class="wax-seal" id="open-card" type="button" aria-label="Buka kad jemputan Amzar dan Dayana" aria-controls="invitation" aria-expanded="false">
+          <span class="seal-rim" aria-hidden="true"></span>
+          <span class="seal-monogram" aria-hidden="true">A<span>&</span>D</span>
+          <span class="seal-shine" aria-hidden="true"></span>
+        </button>
+      </div>
+      <div class="opening-cue"><p>Sentuh mohor untuk membuka</p><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#chevron"></use></svg></div>
+      <button type="button" class="direct-open" id="direct-open">Lihat butiran jemputan</button>
+    </section>
+
+    <div class="invitation-shell" id="invitation-shell">
+      <header class="topbar">
+        <span class="small-monogram" aria-label="Amzar dan Dayana">A<span>&</span>D</span>
+        <button class="quiet-button" type="button" id="replay-top" hidden><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#card"></use></svg><span>Lihat kad</span></button>
+      </header>
+
+      <main class="invitation-paper" id="invitation">
+        <section class="greeting" aria-labelledby="couple-names">
+          <img src="assets/botanical.svg" class="paper-botanical paper-botanical-left" alt="" aria-hidden="true">
+          <img src="assets/botanical.svg" class="paper-botanical paper-botanical-right" alt="" aria-hidden="true">
+          <div class="greeting-content">
+            <p class="bismillah" lang="ar" dir="rtl">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>
+            <p class="salutation">Assalamualaikum & salam sejahtera</p>
+            <p class="invitation-message">Dengan penuh kesyukuran, kami menjemput<br class="wide-break"> anda seisi keluarga untuk meraikan</p>
+            <h1 class="couple-names" id="couple-names" tabindex="-1"><span>Amzar</span><span class="name-ampersand">&</span><span>Dayana</span></h1>
+            <div class="fine-ornament" aria-hidden="true"><span></span><svg viewBox="0 0 48 28"><path d="M24 22C2 9 8-3 18 4l6 6 6-6C40-3 46 9 24 22Z"/><path d="M24 17C13 10 14 4 18 4m6 13c11-7 10-13 6-13"/></svg><span></span></div>
+            <p class="greeting-close">Semoga kehadiran dan doa restu anda<br>menyerikan lagi majlis kami.</p>
+            <a class="scroll-cue" href="#majlis"><span>Butiran majlis</span><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#chevron"></use></svg></a>
+          </div>
+        </section>
+
+        <section class="celebrations" id="majlis" aria-labelledby="celebrations-title">
+          <div class="section-heading"><h2 id="celebrations-title">Raikan bersama kami</h2><p>Tiga detik indah dalam perjalanan kami.</p></div>
+          <div class="event-tabs" role="tablist" aria-label="Pilih majlis">
+            <button id="tab-pertunangan" type="button" role="tab" aria-selected="false" aria-controls="event-panel" tabindex="-1" data-event="pertunangan">Pertunangan</button>
+            <button id="tab-pernikahan" type="button" role="tab" aria-selected="true" aria-controls="event-panel" tabindex="0" data-event="pernikahan">Pernikahan</button>
+            <button id="tab-persandingan" type="button" role="tab" aria-selected="false" aria-controls="event-panel" tabindex="-1" data-event="persandingan">Persandingan</button>
+          </div>
+
+          <div class="event-panel" id="event-panel" role="tabpanel" aria-labelledby="tab-pernikahan" tabindex="0" data-theme="rose">
+            <div class="event-art" aria-hidden="true"><svg class="venue-illustration" viewBox="0 0 320 150"><use id="venue-art" href="assets/venues.svg#glasshouse"></use></svg><span class="art-ground"></span></div>
+            <p class="event-host" id="event-host">Sebelah perempuan</p>
+            <h3 id="event-title">Majlis Pernikahan</h3>
+            <div class="event-date" aria-label="Sabtu, 13 Mac 2027"><span class="date-day" id="date-day">13</span><span class="date-month" id="date-month">Mac<span id="date-year">2027</span></span><span class="date-weekday" id="date-weekday">Sabtu</span></div>
+            <p class="event-time"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#clock"></use></svg><span id="event-time">5.00 petang – 11.00 malam</span></p>
+            <div class="event-location"><h4 id="event-venue">The Tree Glass House</h4><p id="event-region">Kota Bharu, Kelantan</p><p class="location-note" id="location-note" hidden></p></div>
+            <div class="event-actions">
+              <a class="action primary" id="map-link" href="https://www.google.com/maps/search/?api=1&query=The%20Tree%20Glass%20House%2C%20Kota%20Bharu%2C%20Kelantan" target="_blank" rel="noopener noreferrer"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#pin"></use></svg>Lihat lokasi</a>
+              <button class="action secondary" type="button" id="save-date"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#calendar"></use></svg>Simpan tarikh</button>
+            </div>
+            <a class="waze-link" id="waze-link" href="https://waze.com/ul?q=The%20Tree%20Glass%20House%2C%20Kota%20Bharu%2C%20Kelantan&navigate=yes" target="_blank" rel="noopener noreferrer">Buka dalam Waze</a>
+          </div>
+
+          <div class="countdown-wrap" aria-label="Kiraan hari ke majlis yang dipilih">
+            <p id="countdown-heading">Menghitung hari ke majlis pernikahan</p>
+            <div class="countdown" aria-hidden="true"><div><span id="countdown-days">—</span><span>hari</span></div><span class="countdown-colon">:</span><div><span id="countdown-hours">—</span><span>jam</span></div><span class="countdown-colon">:</span><div><span id="countdown-minutes">—</span><span>minit</span></div></div>
+            <p id="countdown-accessible" class="sr-only"></p>
+          </div>
+        </section>
+
+        <section class="all-dates" aria-label="Kesemua tarikh majlis">
+          <h2>Catatan hari istimewa</h2>
+          <ol class="date-list">
+            <li><button type="button" data-jump="pertunangan"><span class="timeline-dot" aria-hidden="true"></span><span><strong>Pertunangan</strong><span>8 November 2026</span></span><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#chevron"></use></svg></button></li>
+            <li><button type="button" data-jump="pernikahan"><span class="timeline-dot" aria-hidden="true"></span><span><strong>Pernikahan</strong><span>13 Mac 2027</span></span><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#chevron"></use></svg></button></li>
+            <li><button type="button" data-jump="persandingan"><span class="timeline-dot" aria-hidden="true"></span><span><strong>Persandingan</strong><span>10 April 2027</span></span><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#chevron"></use></svg></button></li>
+          </ol>
+        </section>
+
+        <section class="blessing" aria-labelledby="blessing-title">
+          <svg class="blessing-rings" aria-hidden="true" viewBox="0 0 90 60"><circle cx="32" cy="35" r="20"/><circle cx="58" cy="35" r="20"/><path d="m26 14-6-8 7-5h10l7 5-6 8M20 6h24m-17-5 5 5 5-5m-5 5v8"/></svg>
+          <h2 id="blessing-title">Doa & restu</h2>
+          <p>Ya Allah, berkatilah ikatan ini.<br>Satukanlah hati kami dalam kasih sayang,<br>limpahkanlah kebahagiaan dan rahmat-Mu,<br>serta jadikanlah rumah tangga kami<br>penuh ketenangan hingga ke syurga.</p>
+          <span class="blessing-signature">Amzar & Dayana</span>
+        </section>
+
+        <footer class="paper-footer"><p>Kehadiran anda amat kami hargai.</p><button type="button" class="share-invitation" id="share-invitation"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#share"></use></svg>Kongsi jemputan</button><p class="footer-year">2026 — 2027</p></footer>
+      </main>
+      <button type="button" class="back-to-cover" id="replay-bottom" hidden><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#card"></use></svg>Tutup & lihat semula kad</button>
+    </div>
+
+    <dialog id="calendar-dialog" aria-labelledby="calendar-title" class="calendar-dialog">
+      <div class="dialog-heading"><h2 id="calendar-title">Simpan tarikh</h2><button type="button" class="icon-button" id="close-calendar" aria-label="Tutup pilihan kalendar"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#close"></use></svg></button></div>
+      <p id="calendar-description">Majlis Pernikahan · 13 Mac 2027</p>
+      <button class="calendar-option" id="download-calendar" type="button"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#download"></use></svg><span><strong>Apple Calendar / Outlook</strong><span>Muat turun fail kalendar (.ics)</span></span></button>
+      <a class="calendar-option" id="google-calendar" href="https://calendar.google.com/calendar/" target="_blank" rel="noopener noreferrer"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#calendar"></use></svg><span><strong>Google Calendar</strong><span>Tambah ke kalendar Google anda</span></span></a>
+      <p class="calendar-note" id="calendar-note" hidden></p>
+    </dialog>
+    <div class="toast" id="toast" role="status" aria-live="polite" hidden><span id="toast-message"></span><button type="button" id="dismiss-toast" aria-label="Tutup pemberitahuan"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#close"></use></svg></button></div>
+
+    <noscript><style>.event-tabs,.countdown-wrap,.date-list,.event-actions,.waze-link,.share-invitation{display:none}.no-script-events{max-width:36rem;margin:auto;padding:2rem;line-height:1.7;color:#132d46}</style><div class="no-script-events"><h2>Kesemua butiran majlis</h2><h3>Pertunangan</h3><p>8 November 2026, Ahad · 2.00 petang<br>Bukit Marak, Kelantan</p><h3>Pernikahan (sebelah perempuan)</h3><p>13 Mac 2027, Sabtu · 5.00 petang – 11.00 malam<br>The Tree Glass House, Kota Bharu</p><h3>Persandingan (sebelah lelaki)</h3><p>10 April 2027, Sabtu · 11.00 pagi – 4.00 petang<br>The Garden Hall Bizmilla One City, Subang Jaya</p></div></noscript>
+  </body>
+</html>
