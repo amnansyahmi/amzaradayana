@@ -116,14 +116,14 @@ html.lenis,html.lenis body { height: auto; }
 .lenis.lenis-stopped { overflow: clip; }
 .lenis [data-lenis-prevent] { overscroll-behavior: contain; }
 /* Only used by browsers without Element.animate. */
-.opening-css:not(.motion-reduced) .door-left { animation: open-left 2100ms 400ms cubic-bezier(.42,0,.16,1) forwards!important; }
-.opening-css:not(.motion-reduced) .door-right { animation: open-right 2100ms 500ms cubic-bezier(.42,0,.16,1) forwards!important; }
+.opening-css:not(.motion-reduced) .door-left { animation: open-left 1950ms 260ms cubic-bezier(.42,0,.16,1) forwards; }
+.opening-css:not(.motion-reduced) .door-right { animation: open-right 1950ms 400ms cubic-bezier(.42,0,.16,1) forwards; }
 .opening-css .wax-seal { opacity: 0; transition: opacity 400ms; }
 .opening-css .inside-fold-shadow { opacity: 0; transition: opacity 2200ms; }
 @keyframes open-left { from { transform: rotateY(0deg); } to { transform: rotateY(-154deg); } }
 @keyframes open-right { from { transform: rotateY(0deg); } to { transform: rotateY(154deg); } }
 /* The cover occupies the browser's visible viewport, including dynamic iOS sizing. */
-.cover-stage { padding: 0; background: var(--navy); bottom: auto; height: 100%; height: var(--cover-height,100dvh); }
+.cover-stage { padding: 0; background: var(--navy); height: 100%; height: 100dvh; }
 .cover-intro,.cover-surround,.direct-open { display: none; }
 .fold-card { position: absolute; inset: 0; width: 100%; height: 100%; aspect-ratio: auto; }
 .card-ground-shadow { display: none; }
@@ -229,42 +229,5 @@ html.lenis,html.lenis body { height: auto; }
 }
 @media print { .paper-turn-light { display: none; } }
 
-.floral-layer { width: 100%; height: auto; pointer-events: none; }
-.floral-layer-back { display: block; }
-.floral-layer-front,.floral-layer-details { position: absolute; inset: 0; }
-.effects-lite .paper-botanical,.effects-lite .door img { animation: none; }
-.script-name { position: relative; }
-.name-writing { display: none; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: var(--name-width); height: 1.15em; overflow: visible; }
-.ink-active .name-writing { display: block; }
-.ink-active .name-label { opacity: 0; }
-.ink-stroke { fill: none; }
-.ink-glint { opacity: .4; }
-.venue-svg-ready #venue-art { display: none; }
+.cover-stage { bottom: auto; height: var(--cover-height,100dvh); }
 .event-panel { touch-action: pan-y; }
-.event-swipe-cue { display: none; font-size: 10px; color: var(--muted); margin: 12px 0 -6px; }
-@media(hover:none) and (pointer:coarse) { .event-swipe-cue { display: block; } }
-.gentle-open {
-  position: absolute; bottom: calc(env(safe-area-inset-bottom) + 18px); left: 50%; transform: translateX(-50%);
-  z-index: 5; min-height: 44px; padding: 8px 18px; white-space: nowrap;
-  border: 1px solid #c3a36b75; background: var(--navy); color: #f4e7c9; font-size: 12px;
-}
-.is-opening .gentle-open { pointer-events: none; opacity: 0; }
-@media(prefers-reduced-motion:reduce) {
-  .opening-cue { bottom: calc(env(safe-area-inset-bottom) + 76px); }
-  .cover-footer { bottom: max(22%,calc(env(safe-area-inset-bottom) + 145px)); }
-}
-@media print { .name-writing { display: none!important; } .ink-active .name-label { opacity: 1; } }
-
-/* The fallback print uses the same normalized placement as the canvas texture. */
-.card-inside { display: block; }
-.card-inside .inside-flourish { position: absolute; left: 50%; top: 10.34%; transform: translate(-50%,-50%); width: 10.15%; height: 6.77vw; margin: 0; }
-.card-inside .inside-introduction { position: absolute; top: 20.2%; left: 0; width: 100%; transform: translateY(-50%); margin: 0; font-size: 4.9479vw; }
-.card-inside .inside-names,.card-inside .inside-closing { position: absolute; inset: 0; margin: 0; }
-.inside-names .inside-name { position: absolute; left: 0; width: 100%; font: 17.578vw/1.15 var(--script); color: var(--ink); transform: translateY(-50%); }
-.inside-name-amzar { top: 38.53%; } .inside-name-dayana { top: 61.56%; }
-.inside-names .inside-ampersand { position: absolute; top: 49.62%; left: 0; width: 100%; transform: translateY(-50%); font-size: 7.8125vw; }
-.inside-closing span { position: absolute; left: 0; width: 100%; transform: translateY(-50%); font-size: 4.9479vw; }
-.inside-closing span:first-child { top: 76.13%; } .inside-closing span:last-child { top: 81.39%; }
-.is-opening:not(.motion-reduced) .seal-rim { animation: seal-touch-light 520ms ease-out; }
-@keyframes seal-touch-light { 0%,100% { opacity: 1; } 30% { opacity: .5; } 55% { opacity: 1; box-shadow: inset 0 0 0 2px #fff3d46b,0 0 0 1px #fff3d4bb; } }
-.cover-active .invitation-shell { transform: none; }

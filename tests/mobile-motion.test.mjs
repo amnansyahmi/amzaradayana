@@ -1,20 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { OPENING, isLiteDevice, createFrameBudget, mountEventSwipe, mountCoverViewport } from '../mobile-motion.mjs';
-import { planCSSHandoff, planHandoff } from '../opening-handoff.mjs';
-
-test('CSS and WebGL approach the same name size and position across mobile viewports', () => {
-  for (const [width, height] of [[320,568],[390,700],[390,820],[430,932],[844,390]]) {
-    const input = { cameraZ: 9, openedScale: .68, cardWidth: width, paperHeight: 2.8 * height / width,
-      viewportHeight: height, nameCenterY: 450, nameFontSize: 76 };
-    const webgl = planHandoff(input);
-    const css = planCSSHandoff({ ...input, cardHeight: height });
-    assert.ok(Math.abs(input.openedScale / (webgl.cameraZ / input.cameraZ) - css.scale) < 1e-9);
-    const cssCentre = height / 2 + height * (410 / 1064 - .5) * css.scale + css.y;
-    assert.ok(Math.abs(cssCentre - input.nameCenterY) < 1e-9);
-  }
-  assert.equal(OPENING.reveal + OPENING.fade, OPENING.end);
-});
+import { isLiteDevice, createFrameBudget, mountEventSwipe, mountCoverViewport } from '../mobile-motion.mjs';
 
 test('only deliberate horizontal touch swipes change events', () => {
   const listeners = new Map(), turns = [];

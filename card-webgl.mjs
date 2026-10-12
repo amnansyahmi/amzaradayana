@@ -253,18 +253,13 @@ export async function prepareWebGLCard(cover, card, shouldPrepare = () => true) 
         budget.sample(performance.now()); applyScale(); renderer.render(scene, camera);
       }, onComplete: () => { onFinish(); dispose(); } });
       // Blend matching DOM/Canvas covers before either hinge starts rotating.
-      timeline.to(renderer.domElement, { opacity: 1, duration: OPENING.press, ease: 'sine.inOut' }, 0);
-      timeline.to(card, { opacity: 0, duration: OPENING.press, ease: 'sine.inOut' }, 0);
-      timeline.to(seal.scale, { x: .95, y: .95, z: .75, duration: OPENING.press }, 0);
-      timeline.to(seal.position, { z: .05, duration: OPENING.press }, 0);
-      timeline.to(sealFace, { emissiveIntensity: .2, duration: .12 }, .06);
-      timeline.to(sealFace, { emissiveIntensity: 0, duration: .2 }, .18);
-      timeline.to(seal.position, { z: .5, y: .25, duration: OPENING.seal - OPENING.press, ease: 'power2.in' }, OPENING.press);
-      timeline.to(seal.scale, { x: 0, y: 0, z: 0, duration: .25, ease: 'power2.in' }, .27);
+      timeline.to(renderer.domElement, { opacity: 1, duration: .22, ease: 'sine.inOut' }, 0);
+      timeline.to(card, { opacity: 0, duration: .22, ease: 'sine.inOut' }, 0);
+      timeline.to(seal.position, { z: .5, y: .25, duration: OPENING.seal, ease: 'power2.in' }, 0);
+      timeline.to(seal.scale, { x: 0, y: 0, z: 0, duration: .32, ease: 'power2.in' }, .2);
       for (const side of ['left', 'right']) {
         const start = OPENING[side], angle = hingeGeometry(side).angle;
-        timeline.to(leaves[side].rotation, { y: angle * .12, duration: .38, ease: 'sine.in' }, start);
-        timeline.to(leaves[side].rotation, { y: angle, duration: OPENING.hinge - .38, ease: 'power2.inOut' }, start + .38);
+        timeline.to(leaves[side].rotation, { y: angle, duration: OPENING.hinge, ease: 'power2.inOut' }, start);
       }
       timeline.to(root.rotation, { x: .10, duration: .9, ease: 'power1.inOut' }, .25);
       timeline.to(root.rotation, { x: 0, duration: .9, ease: 'power1.inOut' }, 1.4);
