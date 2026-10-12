@@ -194,3 +194,37 @@ html.lenis,html.lenis body { height: auto; }
 .names-explicit-motion.names-reveal .couple-names>span:nth-child(3) { animation-delay: .6s!important; }
 @keyframes name-arrival { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
 @media print { .rings-stage { display: none; } .couple-composition { margin: 12px 0; } }
+
+/* Quiet material details: transform/opacity only, with no scaling of the card. */
+.seal-shine { background: none; opacity: 1; overflow: hidden; transition: none; pointer-events: none; }
+.seal-shine::before {
+  content: ""; position: absolute; inset: -20% 0; opacity: 0;
+  background: linear-gradient(100deg,transparent 20%,#fff8df55 49%,transparent 75%);
+  animation: foil-reflection 9s ease-in-out infinite;
+  animation-play-state: paused;
+}
+.cover-stage .door img { animation-play-state: paused; }
+.cover-stage.ambient-running .door img,.ambient-running .seal-shine::before { animation-play-state: running; }
+.is-opening .seal-shine { opacity: 0; }
+.paper-botanical { animation: floral-breeze-left 12s ease-in-out infinite; animation-play-state: paused; transform-origin: 40% 85%; }
+.paper-botanical-right { animation-name: floral-breeze-right; animation-delay: -5s; transform-origin: 60% 15%; }
+.greeting.ambient-running .paper-botanical { animation-play-state: running; }
+.paper-turn-light {
+  position: absolute; inset: 20px -6px 0; pointer-events: none; opacity: 0; z-index: 2;
+  background: linear-gradient(90deg,#c9bfa52b,transparent 18%,#fffdf659 70%,#c9bfa51c);
+}
+@keyframes foil-reflection {
+  0%,8% { opacity: 0; transform: translateX(-100%); }
+  12% { opacity: .65; }
+  25% { opacity: 0; transform: translateX(100%); }
+  100% { opacity: 0; transform: translateX(100%); }
+}
+@keyframes floral-breeze-left {
+  0%,100% { transform: rotate(3.4deg); }
+  50% { transform: rotate(4.6deg); }
+}
+@keyframes floral-breeze-right {
+  0%,100% { transform: rotate(184.6deg); }
+  50% { transform: rotate(183.4deg); }
+}
+@media print { .paper-turn-light { display: none; } }

@@ -1,5 +1,6 @@
 import { events, getEvent, mapUrl, wazeUrl, calendarFile, googleCalendarUrl, countdown } from './events.mjs';
 import { animateCardOpening } from './card-opening.mjs';
+import { createAmbientMotion, createPaperTransition } from './paper-motion.mjs';
 
 const byId = id => document.getElementById(id);
 const cover = byId('cover');
@@ -17,6 +18,8 @@ let webglPreparing;
 let smoothScroll;
 let effectsModule, effectsLoading, ringsScene, namesEffect;
 let revealStarted = false, animateNamesOnReveal = false, fullEffectsRequested = false;
+let ambientMotion;
+const paperTransition = createPaperTransition(panel);
 
 function warmInvitationEffects() {
   if (effectsLoading) return effectsLoading;
@@ -28,6 +31,7 @@ function revealDetails() {
   document.body.classList.remove('cover-active');
   if (revealStarted) return;
   revealStarted = true;
+  ambientMotion?.refresh();
   const composition = byId('couple-composition');
   composition.classList.remove('names-awaiting');
   if (animateNamesOnReveal) {
@@ -99,6 +103,7 @@ function setCountdownRunning() {
 document.addEventListener('visibilitychange', () => { setCountdownRunning(); updateDesktopScroll(); });
 
 function selectEvent(id, animate = true) {
+  const previousId = selected.id;
   selected = getEvent(id);
   for (const tab of document.querySelectorAll('[role="tab"]')) {
     const active = tab.dataset.event === selected.id;
@@ -129,11 +134,9 @@ function selectEvent(id, animate = true) {
   byId('calendar-note').textContent = 'Masa tamat majlis pertunangan belum dinyatakan. Anda boleh melengkapkannya dalam kalendar anda.';
   byId('calendar-note').hidden = Boolean(selected.end);
   updateCountdown();
-  if (animate && !motionPreference.matches && typeof panel.animate === 'function') {
-    (panel.getAnimations?.() ?? []).forEach(animation => animation.cancel());
-    panel.animate([{ opacity: .15, transform: 'translateY(7px)' }, { opacity: 1, transform: 'translateY(0)' }], {
-      duration: 380, easing: 'cubic-bezier(.22,1,.36,1)'
-    });
+  if (animate && previousId !== selected.id) {
+    const direction = events.findIndex(event => event.id === selected.id) > events.findIndex(event => event.id === previousId) ? 1 : -1;
+    paperTransition.play({ direction, reducedMotion: motionPreference.matches });
   }
   const url = new URL(location.href);
   url.searchParams.set('majlis', selected.id);
@@ -171,6 +174,7 @@ function finishOpening() {
   openButton.setAttribute('aria-expanded', 'true');
   byId('couple-names').focus({ preventScroll: true });
   isOpening = false;
+  ambientMotion?.refresh();
   setCountdownRunning();
   updateDesktopScroll();
   // The opening renderer is disposed before the ring renderer is created.
@@ -180,6 +184,7 @@ function finishOpening() {
 function openCard(immediate = false, forceMotion = false) {
   if (isOpening || cover.hidden) return;
   isOpening = true;
+  ambientMotion?.refresh();
   revealStarted = false;
   fullEffectsRequested = forceMotion && !immediate;
   animateNamesOnReveal = (!motionPreference.matches || fullEffectsRequested) && !immediate;
@@ -201,6 +206,7 @@ function openCard(immediate = false, forceMotion = false) {
 }
 
 function replayCard() {
+  paperTransition.cancel();
   ringsScene?.dispose(); ringsScene = null;
   namesEffect?.cancel(); namesEffect = null;
   byId('couple-composition').classList.remove('names-awaiting', 'names-reveal', 'names-explicit-motion');
@@ -219,6 +225,7 @@ function replayCard() {
   cover.style.opacity = '';
   document.body.classList.add('cover-active');
   cover.hidden = false;
+  ambientMotion?.refresh();
   requestAnimationFrame(() => openButton.focus({ preventScroll: true }));
   warmCardScene();
 }
@@ -233,6 +240,8 @@ motionPreference.addEventListener('change', () => {
   // Ambient/UI effects follow the preference; an explicitly requested opening
   // continues to completion when the preference changes mid-animation.
   updateDesktopScroll();
+  ambientMotion?.refresh();
+  if (motionPreference.matches) paperTransition.cancel();
   warmCardScene();
   ringsScene?.setReducedMotion(motionPreference.matches && !fullEffectsRequested);
   if (motionPreference.matches && !fullEffectsRequested) {
@@ -336,6 +345,8 @@ byId('replay-bottom').hidden = false;
 cover.hidden = false;
 shell.inert = true;
 document.body.classList.add('cover-active');
+ambientMotion = createAmbientMotion({ cover, greeting: document.querySelector('.greeting'),
+  getState: () => ({ coverActive: !cover.hidden || isOpening, reducedMotion: motionPreference.matches || isOpening }) });
 byId('direct-open').textContent = motionPreference.matches ? 'Mainkan animasi pembukaan' : 'Buka kad jemputan';
 if (location.hash === '#majlis') openCard(true);
 else warmCardScene();
