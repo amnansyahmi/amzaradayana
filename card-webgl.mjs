@@ -43,15 +43,47 @@ function coverTexture(branch, aspect) {
 function paperTexture(branch, aspect, inside = false) {
   const height = Math.round(768 * aspect), y = value => value * height / 1064;
   const [image, ctx] = canvas(768, height);
-  ctx.fillStyle = inside ? '#fcfaf4' : '#f3eee1'; ctx.fillRect(0, 0, 768, height);
+  const wash = ctx.createLinearGradient(0, 0, 768, height);
+  wash.addColorStop(0, inside ? '#f7f1e3' : '#f0e8d7');
+  wash.addColorStop(.5, inside ? '#fcfaf4' : '#f6f1e6');
+  wash.addColorStop(1, inside ? '#f6eedf' : '#eee3cd');
+  ctx.fillStyle = wash; ctx.fillRect(0, 0, 768, height);
+  // Fine paper fibres are baked into the texture once, never per animation frame.
+  ctx.fillStyle = '#9c8353';
+  for (let row = 4; row < height; row += 7) {
+    for (let col = 4; col < 768; col += 11) {
+      ctx.globalAlpha = ((row * 13 + col * 7) % 5 + 1) * .009;
+      ctx.fillRect(col, row, 1, 2);
+    }
+  }
+  ctx.globalAlpha = 1;
   ctx.strokeStyle = '#d8cbb0'; ctx.lineWidth = 1.8; ctx.strokeRect(25, 25, 718, height - 50);
+  ctx.strokeStyle = '#c4a56e'; ctx.globalAlpha = .55; ctx.lineWidth = 1;
+  ctx.strokeRect(38, 38, 692, height - 76); ctx.globalAlpha = 1;
   if (inside) {
+    // Botanical corners frame the names, with clear space through the centre.
+    ctx.globalAlpha = .47;
+    ctx.drawImage(branch, -125, height - 720, 390, 610);
+    ctx.save(); ctx.translate(768, height); ctx.rotate(Math.PI); ctx.globalAlpha = .33;
+    ctx.drawImage(branch, -125, height - 720, 390, 610); ctx.restore(); ctx.globalAlpha = 1;
+    // An engraved pair of rings replaces the empty area above the introduction.
+    ctx.save(); ctx.translate(384, y(110)); ctx.strokeStyle = '#9b7a3e'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(-18, 0, 27, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath(); ctx.arc(18, 0, 27, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(-27, -27); ctx.lineTo(-34, -38); ctx.lineTo(-27, -46);
+    ctx.lineTo(-9, -46); ctx.lineTo(-2, -38); ctx.lineTo(-9, -27); ctx.closePath(); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(-34, -38); ctx.lineTo(-2, -38); ctx.stroke(); ctx.restore();
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#20364a';
     ctx.font = '38px "Cormorant Garamond"'; ctx.fillText('Dengan penuh kesyukuran', 384, y(215));
     ctx.font = '135px "Great Vibes"'; ctx.fillText('Amzar', 384, y(410)); ctx.fillText('Dayana', 384, y(655));
     ctx.font = '60px "Cormorant Garamond"'; ctx.fillStyle = '#806232'; ctx.fillText('&', 384, y(528));
     ctx.fillStyle = '#20364a'; ctx.font = '38px "Cormorant Garamond"';
     ctx.fillText('menjemput anda meraikan', 384, y(810)); ctx.fillText('hari istimewa kami.', 384, y(866));
+    ctx.strokeStyle = '#b69558'; ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.moveTo(250, y(956)); ctx.lineTo(358, y(956));
+    ctx.moveTo(410, y(956)); ctx.lineTo(518, y(956)); ctx.stroke();
+    ctx.save(); ctx.translate(384, y(956)); ctx.rotate(Math.PI / 4);
+    ctx.strokeRect(-7, -7, 14, 14); ctx.restore();
   } else {
     ctx.globalAlpha = .4; ctx.drawImage(branch, -15, height - 694, 430, 675);
   }

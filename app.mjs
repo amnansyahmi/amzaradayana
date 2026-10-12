@@ -189,7 +189,6 @@ openButton.addEventListener('click', () => openCard(false, true));
 // This labelled action lets a guest explicitly request the full folding motion
 // even when their operating system normally prefers reduced motion.
 byId('direct-open').addEventListener('click', () => openCard(false, true));
-byId('replay-top').addEventListener('click', replayCard);
 byId('replay-bottom').addEventListener('click', replayCard);
 motionPreference.addEventListener('change', () => {
   // Ambient/UI effects follow the preference; an explicitly requested opening
@@ -289,7 +288,6 @@ byId('majlis').append(printEvents);
 
 // Initialise the interactive cover only after all of its handlers exist.
 selectEvent(selected.id, false);
-byId('replay-top').hidden = false;
 byId('replay-bottom').hidden = false;
 cover.hidden = false;
 shell.inert = true;
