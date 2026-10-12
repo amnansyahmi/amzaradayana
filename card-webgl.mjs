@@ -62,10 +62,10 @@ function paperTexture(branch, aspect, inside = false) {
   ctx.strokeRect(38, 38, 692, height - 76); ctx.globalAlpha = 1;
   if (inside) {
     // Botanical corners frame the names, with clear space through the centre.
-    ctx.globalAlpha = .9;
-    ctx.drawImage(branch, -88, height - 740, 355, 680);
-    ctx.save(); ctx.translate(768, height); ctx.rotate(Math.PI); ctx.globalAlpha = .8;
-    ctx.drawImage(branch, -88, height - 740, 355, 680); ctx.restore(); ctx.globalAlpha = 1;
+    ctx.globalAlpha = .48;
+    ctx.drawImage(branch, -88, height - 625, 310, 585);
+    ctx.save(); ctx.translate(768, height); ctx.rotate(Math.PI); ctx.globalAlpha = .4;
+    ctx.drawImage(branch, -88, height - 625, 310, 585); ctx.restore(); ctx.globalAlpha = 1;
     // An engraved pair of rings replaces the empty area above the introduction.
     ctx.save(); ctx.translate(384, y(110)); ctx.strokeStyle = '#9b7a3e'; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.arc(-18, 0, 27, 0, Math.PI * 2); ctx.stroke();
@@ -85,7 +85,7 @@ function paperTexture(branch, aspect, inside = false) {
     ctx.save(); ctx.translate(384, y(956)); ctx.rotate(Math.PI / 4);
     ctx.strokeRect(-7, -7, 14, 14); ctx.restore();
   } else {
-    ctx.globalAlpha = .8; ctx.drawImage(branch, -15, height - 694, 430, 675);
+    ctx.globalAlpha = .42; ctx.drawImage(branch, -15, height - 614, 360, 590);
   }
   return texture(image);
 }
