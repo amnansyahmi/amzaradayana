@@ -15,6 +15,34 @@ let opening;
 let webglCard;
 let webglPreparing;
 let smoothScroll;
+let effectsModule, effectsLoading, ringsScene, namesEffect;
+let revealStarted = false, animateNamesOnReveal = false, fullEffectsRequested = false;
+
+function warmInvitationEffects() {
+  if (effectsLoading) return effectsLoading;
+  effectsLoading = import('./invitation-effects.mjs').then(module => { effectsModule = module; return module; }).catch(() => null);
+  return effectsLoading;
+}
+
+function revealDetails() {
+  document.body.classList.remove('cover-active');
+  if (revealStarted) return;
+  revealStarted = true;
+  const composition = byId('couple-composition');
+  composition.classList.remove('names-awaiting');
+  if (animateNamesOnReveal) {
+    if (effectsModule) namesEffect = effectsModule.revealNames(byId('couple-names'));
+    else composition.classList.add('names-reveal');
+  }
+}
+
+function mountInvitationRings() {
+  warmInvitationEffects().then(module => {
+    if (!module || !cover.hidden || ringsScene) return;
+    try { ringsScene = module.mountRings(byId('rings-stage'), { reducedMotion: motionPreference.matches && !fullEffectsRequested }); }
+    catch { /* The inline ring illustration remains available without WebGL. */ }
+  });
+}
 
 function warmCardScene() {
   if (webglCard || webglPreparing || cover.hidden) return;
@@ -138,21 +166,29 @@ function finishOpening() {
   opening?.cancel(); opening = null;
   webglCard?.dispose(); webglCard = null;
   cover.style.opacity = '';
-  document.body.classList.remove('cover-active');
+  revealDetails();
   shell.inert = false;
   openButton.setAttribute('aria-expanded', 'true');
   byId('couple-names').focus({ preventScroll: true });
   isOpening = false;
   setCountdownRunning();
   updateDesktopScroll();
+  // The opening renderer is disposed before the ring renderer is created.
+  mountInvitationRings();
 }
 
 function openCard(immediate = false, forceMotion = false) {
   if (isOpening || cover.hidden) return;
   isOpening = true;
+  revealStarted = false;
+  fullEffectsRequested = forceMotion && !immediate;
+  animateNamesOnReveal = (!motionPreference.matches || fullEffectsRequested) && !immediate;
+  byId('couple-composition').classList.toggle('names-explicit-motion', fullEffectsRequested);
+  byId('couple-composition').classList.toggle('names-awaiting', animateNamesOnReveal);
   openButton.disabled = true;
   if (immediate) return finishOpening(); // Only an explicit #majlis deep link skips the cover.
-  const callbacks = { onReveal: () => document.body.classList.remove('cover-active'), onFinish: finishOpening };
+  const callbacks = { onReveal: revealDetails, onFinish: finishOpening,
+    focusTarget: byId('couple-names').querySelector('span') };
   if (webglCard && (!motionPreference.matches || forceMotion)) {
     try { opening = webglCard.play(callbacks); return; }
     catch { webglCard.dispose(); webglCard = null; }
@@ -165,6 +201,9 @@ function openCard(immediate = false, forceMotion = false) {
 }
 
 function replayCard() {
+  ringsScene?.dispose(); ringsScene = null;
+  namesEffect?.cancel(); namesEffect = null;
+  byId('couple-composition').classList.remove('names-awaiting', 'names-reveal', 'names-explicit-motion');
   opening?.cancel(); opening = null;
   webglCard?.dispose(); webglCard = null;
   smoothScroll?.destroy(); smoothScroll = null;
@@ -195,6 +234,11 @@ motionPreference.addEventListener('change', () => {
   // continues to completion when the preference changes mid-animation.
   updateDesktopScroll();
   warmCardScene();
+  ringsScene?.setReducedMotion(motionPreference.matches && !fullEffectsRequested);
+  if (motionPreference.matches && !fullEffectsRequested) {
+    namesEffect?.cancel(); namesEffect = null;
+    byId('couple-composition').classList.remove('names-awaiting', 'names-reveal');
+  }
   byId('direct-open').textContent = motionPreference.matches ? 'Mainkan animasi pembukaan' : 'Buka kad jemputan';
 });
 window.addEventListener('resize', updateDesktopScroll);
@@ -295,6 +339,7 @@ document.body.classList.add('cover-active');
 byId('direct-open').textContent = motionPreference.matches ? 'Mainkan animasi pembukaan' : 'Buka kad jemputan';
 if (location.hash === '#majlis') openCard(true);
 else warmCardScene();
+warmInvitationEffects();
 
 // Keep the invitation app-like on mobile while retaining regular vertical swipes.
 document.addEventListener('touchmove', event => {

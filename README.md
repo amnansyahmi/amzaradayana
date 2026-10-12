@@ -10,6 +10,8 @@ A mobile-first Malay wedding invitation with a fullscreen navy gatefold cover. T
 - Countdown for the selected event, native sharing with a copy-link fallback, and replaying the card opening.
 - Self-hosted fonts, keyboard navigation, progressive fallback without JavaScript, and printable details for all events. Tapping the card explicitly plays the full fold even with Reduce Motion enabled; ambient/UI effects still respect that preference.
 - Desktop Lenis scrolling; mobile uses native vertical touch scrolling with pinch/double-tap zoom disabled.
+- A subtle pair of procedural 3D rings behind the names, one with a faceted diamond. Rings turn with scrolling and pause offscreen or in a background tab; an SVG fallback is included.
+- Names appear in the sequence Amzar, ampersand, Dayana. The opening camera approaches the printed names before blending into the page. A deliberate full-animation card tap also opts into the name/ring effects; direct detail links follow reduced-motion preferences.
 
 ## Event source of truth
 

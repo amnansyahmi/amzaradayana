@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { gsap } from 'gsap';
+import { planHandoff } from './opening-handoff.mjs';
 
 const W = 2.8;
 
@@ -206,12 +207,19 @@ export async function prepareWebGLCard(cover, card, shouldPrepare = () => true) 
   }
   return {
     dispose,
-    play({ onReveal, onFinish }) {
+    play({ onReveal, onFinish, focusTarget }) {
       if (disposed) throw new Error('Disposed card scene');
       activeFinish = onFinish;
       renderer.domElement.style.opacity = '0';
       cover.append(renderer.domElement); cover.classList.add('webgl-active', 'is-opening');
       const small = window.matchMedia('(max-width: 600px)').matches;
+      const openedScale = small ? .68 : .8;
+      const paperBounds = card.getBoundingClientRect(), stageBounds = cover.getBoundingClientRect();
+      const targetBounds = focusTarget?.getBoundingClientRect();
+      const handoff = planHandoff({ cameraZ: camera.position.z, openedScale,
+        cardWidth: paperBounds.width, paperHeight: H, viewportHeight: stageBounds.height,
+        nameCenterY: targetBounds ? targetBounds.top + targetBounds.height / 2 - stageBounds.top : stageBounds.height * .4,
+        nameFontSize: focusTarget ? Number.parseFloat(getComputedStyle(focusTarget).fontSize) : 76 });
       timeline = gsap.timeline({ onUpdate: () => { applyScale(); renderer.render(scene, camera); }, onComplete: () => { onFinish(); dispose(); } });
       // Blend matching DOM/Canvas covers before either hinge starts rotating.
       timeline.to(renderer.domElement, { opacity: 1, duration: .22, ease: 'sine.inOut' }, 0);
@@ -222,9 +230,12 @@ export async function prepareWebGLCard(cover, card, shouldPrepare = () => true) 
       timeline.to(leaves.right.rotation, { y: hingeGeometry('right').angle, duration: 2.15, ease: 'power2.inOut' }, .40);
       timeline.to(root.rotation, { x: .10, duration: .9, ease: 'power1.inOut' }, .25);
       timeline.to(root.rotation, { x: 0, duration: .9, ease: 'power1.inOut' }, 1.4);
-      timeline.to(zoom, { scale: small ? .68 : .8, duration: 2.4, ease: 'power1.inOut' }, .15);
-      timeline.call(onReveal, [], 2.9);
-      timeline.to(cover, { opacity: 0, duration: .65, ease: 'power1.inOut' }, 2.9);
+      timeline.to(zoom, { scale: openedScale, duration: 2.4, ease: 'power1.inOut' }, .15);
+      // Move through the opened paper toward the actual names in the page.
+      timeline.to(camera.position, { z: handoff.cameraZ, duration: .95, ease: 'power2.inOut' }, 2.6);
+      timeline.to(root.position, { y: handoff.paperY, duration: .95, ease: 'power2.inOut' }, 2.6);
+      timeline.call(onReveal, [], 2.95);
+      timeline.to(cover, { opacity: 0, duration: .8, ease: 'sine.inOut' }, 2.95);
       return { cancel() { timeline.kill(); gsap.set([cover, card], { clearProps: 'opacity' }); dispose(); } };
     }
   };

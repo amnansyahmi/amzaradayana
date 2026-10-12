@@ -18,4 +18,6 @@ UI/UX Pro Max was loaded from the existing local skill and queried for this invi
 
 ## Content boundaries
 
+The name composition includes a low-opacity procedural ring pair. Its gold reflection is baked into a small matcap, avoiding external models, HDR images and transmission shaders. The opening renderer is disposed before the ring renderer is created. The ring scene draws in response to scrolling/its initial arrival and stops when offscreen or the document is hidden. Name reveal treats each script name as a whole to preserve connected lettering. The opening camera approaches the actual heading position before the final blend.
+
 Only the couple's first names and the three event schedules were supplied. No full names, parents, phone numbers, precise engagement address, engagement end time or RSVP destination are invented. Map links search the given venue names; the engagement location is explicitly an area. RSVP can be added when a real contact or response destination is available.

@@ -179,3 +179,18 @@ html.lenis,html.lenis body { height: auto; }
   .paper-botanical-right { right: -70px; top: -12px; }
 }
 @media print { .greeting { background: white; } }
+.couple-composition { position: relative; isolation: isolate; margin: 34px 0 20px; }
+.couple-composition .couple-names { margin: 0; }
+.rings-stage { position: absolute; inset: -8px -14px; z-index: -1; opacity: .17; pointer-events: none; }
+.rings-stage canvas { display: block; width: 100%; height: 100%; }
+.ring-fallback { position: absolute; width: 84%; height: 84%; top: 8%; left: 8%; }
+.ring-webgl-ready .ring-fallback { display: none; }
+.names-awaiting .couple-names>span { opacity: 0; }
+.names-reveal .couple-names>span { animation: name-arrival .85s cubic-bezier(.22,1,.36,1) both; }
+.names-reveal .couple-names>span:nth-child(2) { animation-delay: .3s; }
+.names-reveal .couple-names>span:nth-child(3) { animation-delay: .6s; }
+.names-explicit-motion.names-reveal .couple-names>span { animation: name-arrival .85s cubic-bezier(.22,1,.36,1) both!important; }
+.names-explicit-motion.names-reveal .couple-names>span:nth-child(2) { animation-delay: .3s!important; }
+.names-explicit-motion.names-reveal .couple-names>span:nth-child(3) { animation-delay: .6s!important; }
+@keyframes name-arrival { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+@media print { .rings-stage { display: none; } .couple-composition { margin: 12px 0; } }

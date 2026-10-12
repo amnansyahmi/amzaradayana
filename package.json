@@ -6,7 +6,7 @@
   "scripts": {
     "build": "node scripts/build.mjs",
     "test": "node --test",
-    "check": "node --check app.mjs && node --check card-opening.mjs && node --check card-webgl.mjs && node --check events.mjs && node --check scripts/build.mjs"
+    "check": "node --check app.mjs && node --check card-opening.mjs && node --check card-webgl.mjs && node --check invitation-effects.mjs && node --check ring-geometry.mjs && node --check opening-handoff.mjs && node --check events.mjs && node --check scripts/build.mjs"
   },
   "engines": {
     "node": ">=20"

@@ -59,9 +59,10 @@ export function animateCardOpening({ cover, card, seal, left, right, insideShado
 
       animate(card, [
         { transform: 'translateZ(0) rotateX(0deg) scale(1)' },
-        { transform: `translateZ(0) rotateX(7deg) scale(${smallScreen ? .76 : .9})`, offset: .5 },
-        { transform: `translateZ(0) rotateX(0deg) scale(${smallScreen ? .68 : .8})` }
-      ], { duration: 2350, easing: 'cubic-bezier(.22,1,.36,1)' });
+        { transform: `translateZ(0) rotateX(7deg) scale(${smallScreen ? .76 : .9})`, offset: .4 },
+        { transform: `translateZ(0) rotateX(0deg) scale(${smallScreen ? .68 : .8})`, offset: .76 },
+        { transform: 'translateZ(0) rotateX(0deg) scale(1.06)' }
+      ], { duration: 3100, easing: 'cubic-bezier(.22,1,.36,1)' });
       animate(insideShadow, [
         { opacity: .82 }, { opacity: .58, offset: .33 },
         { opacity: .18, offset: .72 }, { opacity: 0 }
