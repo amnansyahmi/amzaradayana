@@ -1,4 +1,5 @@
 import { events, getEvent, mapUrl, wazeUrl, calendarFile, googleCalendarUrl, countdown } from './events.mjs';
+import { animateCardOpening } from './card-opening.mjs';
 
 const byId = id => document.getElementById(id);
 const cover = byId('cover');
@@ -10,8 +11,35 @@ const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
 let selected = getEvent(new URLSearchParams(location.search).get('majlis'));
 let isOpening = false;
 let countdownTimer;
-let openTimer;
-let leaveTimer;
+let opening;
+let webglCard;
+let webglPreparing;
+let smoothScroll;
+
+function warmCardScene() {
+  if (motionPreference.matches || webglCard || webglPreparing || cover.hidden) return;
+  webglPreparing = import('./card-webgl.mjs').then(module => module.prepareWebGLCard(cover, byId('fold-card')))
+    .then(scene => {
+      webglPreparing = null;
+      if (cover.hidden || isOpening || motionPreference.matches) scene.dispose();
+      else webglCard = scene;
+    }).catch(() => { webglPreparing = null; }); // WebGL unavailable: retain the CSS 3D card.
+}
+
+function updateDesktopScroll() {
+  if (motionPreference.matches || !window.matchMedia('(hover: hover) and (pointer: fine)').matches ||
+      !cover.hidden || document.hidden || dialog.open) {
+    smoothScroll?.destroy(); smoothScroll = null;
+    return;
+  }
+  if (smoothScroll) return;
+  import('lenis').then(({ default: Lenis }) => {
+    if (smoothScroll || !cover.hidden || document.hidden || dialog.open || motionPreference.matches ||
+        !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+    smoothScroll = new Lenis({ autoRaf: true, smoothWheel: true, syncTouch: false,
+      duration: .85, anchors: true, prevent: node => node.closest?.('dialog') });
+  }).catch(() => {}); // Native scrolling is the fallback.
+}
 
 function notify(message) {
   byId('toast-message').textContent = message;
@@ -39,7 +67,7 @@ function setCountdownRunning() {
     countdownTimer = setInterval(updateCountdown, 30_000);
   }
 }
-document.addEventListener('visibilitychange', setCountdownRunning);
+document.addEventListener('visibilitychange', () => { setCountdownRunning(); updateDesktopScroll(); });
 
 function selectEvent(id, animate = true) {
   selected = getEvent(id);
@@ -73,7 +101,7 @@ function selectEvent(id, animate = true) {
   byId('calendar-note').hidden = Boolean(selected.end);
   updateCountdown();
   if (animate && !motionPreference.matches && typeof panel.animate === 'function') {
-    panel.getAnimations().forEach(animation => animation.cancel());
+    (panel.getAnimations?.() ?? []).forEach(animation => animation.cancel());
     panel.animate([{ opacity: .15, transform: 'translateY(7px)' }, { opacity: 1, transform: 'translateY(0)' }], {
       duration: 380, easing: 'cubic-bezier(.22,1,.36,1)'
     });
@@ -105,33 +133,40 @@ document.querySelectorAll('[data-jump]').forEach(button => {
 });
 
 function finishOpening() {
-  clearTimeout(openTimer);
-  clearTimeout(leaveTimer);
   cover.hidden = true;
+  opening?.cancel(); opening = null;
+  webglCard?.dispose(); webglCard = null;
+  cover.style.opacity = '';
   document.body.classList.remove('cover-active');
   shell.inert = false;
   openButton.setAttribute('aria-expanded', 'true');
   byId('couple-names').focus({ preventScroll: true });
   isOpening = false;
   setCountdownRunning();
+  updateDesktopScroll();
 }
 
-function openCard(immediate = false) {
+function openCard(immediate = false, forceMotion = false) {
   if (isOpening || cover.hidden) return;
   isOpening = true;
-  cover.classList.add('is-opening');
   openButton.disabled = true;
-  if (immediate || motionPreference.matches) return finishOpening();
-  leaveTimer = setTimeout(() => {
-    cover.classList.add('is-leaving');
-    document.body.classList.remove('cover-active');
-  }, 1450);
-  openTimer = setTimeout(finishOpening, 2100);
+  if (immediate) return finishOpening(); // Only an explicit #majlis deep link skips the cover.
+  const callbacks = { onReveal: () => document.body.classList.remove('cover-active'), onFinish: finishOpening };
+  if (webglCard && (!motionPreference.matches || forceMotion)) {
+    try { opening = webglCard.play(callbacks); return; }
+    catch { webglCard.dispose(); webglCard = null; }
+  }
+  opening = animateCardOpening({ cover, card: byId('fold-card'), seal: openButton,
+    left: document.querySelector('.door-left'), right: document.querySelector('.door-right'),
+    insideShadow: document.querySelector('.inside-fold-shadow'), lights: document.querySelectorAll('.door-light'),
+    reducedMotion: motionPreference.matches && !forceMotion, smallScreen: window.matchMedia('(max-width: 600px)').matches,
+    ...callbacks });
 }
 
 function replayCard() {
-  clearTimeout(openTimer);
-  clearTimeout(leaveTimer);
+  opening?.cancel(); opening = null;
+  webglCard?.dispose(); webglCard = null;
+  smoothScroll?.destroy(); smoothScroll = null;
   clearInterval(countdownTimer);
   if (dialog.open) dialog.close();
   byId('toast').hidden = true;
@@ -140,22 +175,31 @@ function replayCard() {
   isOpening = false;
   openButton.disabled = false;
   openButton.setAttribute('aria-expanded', 'false');
-  cover.classList.remove('is-opening', 'is-leaving');
+  cover.classList.remove('is-opening', 'is-leaving', 'opening-css', 'motion-reduced', 'webgl-active');
+  cover.style.opacity = '';
   document.body.classList.add('cover-active');
   cover.hidden = false;
   requestAnimationFrame(() => openButton.focus({ preventScroll: true }));
+  warmCardScene();
 }
 openButton.addEventListener('click', () => openCard());
-byId('direct-open').addEventListener('click', () => openCard(true));
+// This labelled action lets a guest explicitly request the full folding motion
+// even when their operating system normally prefers reduced motion.
+byId('direct-open').addEventListener('click', () => openCard(false, true));
 byId('replay-top').addEventListener('click', replayCard);
 byId('replay-bottom').addEventListener('click', replayCard);
 motionPreference.addEventListener('change', () => {
   if (isOpening && motionPreference.matches) finishOpening();
+  updateDesktopScroll();
+  warmCardScene();
+  byId('direct-open').textContent = motionPreference.matches ? 'Mainkan animasi pembukaan' : 'Buka kad jemputan';
 });
+window.addEventListener('resize', updateDesktopScroll);
 
 byId('save-date').addEventListener('click', () => {
   if (typeof dialog.showModal === 'function') {
     document.body.classList.add('sheet-open');
+    smoothScroll?.destroy(); smoothScroll = null;
     dialog.showModal();
   } else {
     downloadCalendar();
@@ -164,6 +208,7 @@ byId('save-date').addEventListener('click', () => {
 byId('close-calendar').addEventListener('click', () => dialog.close());
 dialog.addEventListener('close', () => {
   document.body.classList.remove('sheet-open');
+  updateDesktopScroll();
   byId('save-date').focus({ preventScroll: true });
 });
 dialog.addEventListener('click', event => {
@@ -245,4 +290,13 @@ byId('replay-bottom').hidden = false;
 cover.hidden = false;
 shell.inert = true;
 document.body.classList.add('cover-active');
+byId('direct-open').textContent = motionPreference.matches ? 'Mainkan animasi pembukaan' : 'Buka kad jemputan';
 if (location.hash === '#majlis') openCard(true);
+else warmCardScene();
+
+// Keep the invitation app-like on mobile while retaining regular vertical swipes.
+document.addEventListener('touchmove', event => {
+  if (event.touches.length > 1) event.preventDefault();
+}, { passive: false });
+document.addEventListener('gesturestart', event => event.preventDefault(), { passive: false });
+document.addEventListener('gesturechange', event => event.preventDefault(), { passive: false });

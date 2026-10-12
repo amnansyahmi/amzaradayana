@@ -4,11 +4,12 @@ A mobile-first Malay wedding invitation with an animated navy gatefold cover. Ta
 
 ## Included
 
-- Two-door 3D opening animation, textured paper, botanical SVGs and custom venue linework.
+- Three.js paper geometry, visible front/back faces and thickness, real-time shadows, and a GSAP opening sequence. CSS 3D remains available if WebGL cannot initialise.
 - All three event schedules from the supplied invitation, selected via accessible tabs.
 - Google Maps and Waze searches, `.ics` downloads and Google Calendar links in Malaysia time.
 - Countdown for the selected event, native sharing with a copy-link fallback, and replaying the card opening.
-- Self-hosted fonts, reduced-motion support, keyboard navigation, progressive fallback without JavaScript, and printable details for all events.
+- Self-hosted fonts, reduced-motion support with an explicit full-animation button, keyboard navigation, progressive fallback without JavaScript, and printable details for all events.
+- Desktop Lenis scrolling; mobile uses native vertical touch scrolling with pinch/double-tap zoom disabled.
 
 ## Event source of truth
 
@@ -22,9 +23,10 @@ Edit `events.mjs` to update the schedule and venue queries. The engagement's exa
 
 ## Build and deploy
 
-Node 20 or newer; no dependency installation is needed.
+Node 20 or newer. Exact library versions are recorded in `package-lock.json`.
 
 ```sh
+npm ci
 npm run check
 npm test
 npm run build

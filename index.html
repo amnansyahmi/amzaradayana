@@ -2,7 +2,7 @@
 <html lang="ms">
   <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#132d46">
     <meta name="description" content="Dengan sukacitanya menjemput anda meraikan Amzar & Dayana. Buka kad jemputan untuk butiran pertunangan, pernikahan dan persandingan.">
     <meta property="og:type" content="website">
@@ -17,6 +17,7 @@
     <link rel="preload" href="assets/fonts/great-vibes-400.woff" as="font" type="font/woff" crossorigin>
     <link rel="preload" href="assets/fonts/cormorant-garamond-400.woff" as="font" type="font/woff" crossorigin>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="card-opening.css">
     <script type="module" src="app.mjs"></script>
   </head>
   <body>
@@ -29,19 +30,29 @@
       </div>
       <p class="cover-intro">Sebuah jemputan, khas buat anda</p>
       <div class="fold-card" id="fold-card">
+        <div class="card-ground-shadow" aria-hidden="true"></div>
         <div class="card-inside" aria-hidden="true">
           <svg class="inside-flourish" viewBox="0 0 48 28"><path d="M24 22C2 9 8-3 18 4l6 6 6-6C40-3 46 9 24 22Z" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>
           <p>Dengan penuh kesyukuran</p>
           <span class="inside-names">Amzar<br><span>&</span><br>Dayana</span>
           <p>menjemput anda meraikan<br>hari istimewa kami.</p>
         </div>
-        <div class="door door-left" aria-hidden="true"><div class="door-frame"></div><img src="assets/botanical.svg" alt=""></div>
-        <div class="door door-right" aria-hidden="true"><div class="door-frame"></div><img src="assets/botanical.svg" alt=""></div>
-        <div class="cover-lettering" aria-hidden="true">
-          <p class="cover-label">Walimatulurus</p>
-          <span class="cover-name first-name">Amzar</span>
-          <span class="cover-name second-name">Dayana</span>
-          <p class="cover-footer">Dengan sukacitanya menjemput<br>anda seisi keluarga</p>
+        <div class="inside-fold-shadow" aria-hidden="true"></div>
+        <div class="door door-left" aria-hidden="true">
+          <div class="door-face door-front">
+            <div class="door-frame"></div><img src="assets/botanical.svg" alt="">
+            <div class="cover-lettering"><p class="cover-label">Walimatulurus</p><span class="cover-name first-name">Amzar</span><span class="cover-name second-name">Dayana</span><p class="cover-footer">Dengan sukacitanya menjemput<br>anda seisi keluarga</p></div>
+            <span class="door-light"></span>
+          </div>
+          <div class="door-face door-back"><div class="back-frame"></div><img src="assets/botanical.svg" alt=""></div>
+        </div>
+        <div class="door door-right" aria-hidden="true">
+          <div class="door-face door-front">
+            <div class="door-frame"></div><img src="assets/botanical.svg" alt="">
+            <div class="cover-lettering"><p class="cover-label">Walimatulurus</p><span class="cover-name first-name">Amzar</span><span class="cover-name second-name">Dayana</span><p class="cover-footer">Dengan sukacitanya menjemput<br>anda seisi keluarga</p></div>
+            <span class="door-light"></span>
+          </div>
+          <div class="door-face door-back"><div class="back-frame"></div><img src="assets/botanical.svg" alt=""></div>
         </div>
         <button class="wax-seal" id="open-card" type="button" aria-label="Buka kad jemputan Amzar dan Dayana" aria-controls="invitation" aria-expanded="false">
           <span class="seal-rim" aria-hidden="true"></span>

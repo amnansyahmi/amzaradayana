@@ -1,0 +1,130 @@
+/* Keep grouping effects off the 3D parent: filters/opacity/overflow would
+   flatten the paper faces. Put clipping and texture on the individual faces. */
+.cover-stage {
+  position: fixed; inset: 0; z-index: 10;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 24px 22px; background: var(--canvas); overflow: hidden;
+  transition: opacity 650ms ease;
+}
+.cover-surround { position: absolute; inset: 0; z-index: -1; overflow: hidden; }
+.surround-branch { position: absolute; width: 260px; opacity: .29; bottom: -70px; }
+.branch-left { left: max(-100px,calc(50% - 550px)); transform: rotate(14deg); }
+.branch-right { right: max(-100px,calc(50% - 550px)); transform: scaleX(-1) rotate(14deg); }
+.cover-intro { font: 20px var(--serif); color: var(--muted); margin: 0 0 22px; text-align: center; }
+.fold-card {
+  width: min(390px,100%); aspect-ratio: 39/54; position: relative;
+  perspective: 1250px; perspective-origin: 50% 43%;
+  transform-style: preserve-3d; isolation: auto; filter: none;
+}
+.card-ground-shadow {
+  position: absolute; inset: 8px -8px -16px;
+  background: #172e402e; filter: blur(16px); transform: translateZ(-8px);
+  pointer-events: none;
+}
+.card-inside {
+  position: absolute; inset: 0; background: var(--paper);
+  display: flex; flex-direction: column; justify-content: center; align-items: center;
+  border: 1px solid var(--line); color: var(--ink); text-align: center;
+  transform: translateZ(-1px);
+  box-shadow: inset 0 0 0 12px var(--paper), inset 0 0 0 13px var(--line), 0 3px 7px #142c4520;
+}
+.card-inside p { font: 18px/1.5 var(--serif); margin: 0 0 16px; }
+.inside-flourish { width: 36px; height: 28px; color: var(--gold-dark); margin-bottom: 18px; }
+.inside-names { font: 58px/.8 var(--script); margin: 20px 0 30px; }
+.inside-names span { font: 27px/1.3 var(--serif); color: var(--gold-dark); }
+.inside-fold-shadow {
+  position: absolute; inset: 0; transform: translateZ(1px); pointer-events: none;
+  background: linear-gradient(90deg,#07192895,transparent 42%,#07192830 50%,transparent 58%,#07192895);
+  opacity: .82;
+}
+.door {
+  position: absolute; top: 0; width: 50%; height: 100%;
+  transform-style: preserve-3d; transform: rotateY(0deg);
+  background: none; overflow: visible; border: 0; box-shadow: none;
+  backface-visibility: visible; -webkit-backface-visibility: visible;
+  will-change: transform;
+}
+.door-left { left: 0; transform-origin: 0% 50%; }
+.door-right { right: 0; transform-origin: 100% 50%; }
+.door-face {
+  position: absolute; inset: 0; overflow: hidden;
+  backface-visibility: hidden; -webkit-backface-visibility: hidden;
+}
+.door-front {
+  transform: translateZ(.8px); background-color: var(--navy);
+  background-image: repeating-linear-gradient(90deg,#fff1 0,#fff1 .3px,transparent .3px,transparent 3px);
+  box-shadow: inset 0 0 0 1px #091e30, 0 2px 5px #0e233755;
+}
+.door-back {
+  transform: rotateY(180deg) translateZ(.8px); background: #f3eee1;
+  box-shadow: inset 0 0 0 1px #cfc1a6, inset 0 0 35px #a5875320, 0 2px 5px #0e233755;
+}
+.back-frame { position: absolute; inset: 13px; border: 1px solid var(--line); }
+.door-back img { opacity: .45; width: 190px; bottom: -40px; }
+.door-frame { position: absolute; inset: 13px; border: 1px solid #c3a36b90; }
+.door-left .door-frame { right: -1px; border-right: 0; }
+.door-right .door-frame { left: -1px; border-left: 0; }
+.door-frame:after { content: ""; position: absolute; inset: 5px; border: 1px solid #c3a36b35; }
+.door-left .door-frame:after { right: 0; border-right: 0; }
+.door-right .door-frame:after { left: 0; border-left: 0; }
+.door img {
+  position: absolute; width: 210px; opacity: .74; bottom: -28px; left: -55px;
+  transform-origin: bottom left; animation: botanical-breeze 7s ease-in-out infinite alternate;
+}
+.door-right img { left: auto; right: -55px; transform: scaleX(-1); animation-name: botanical-breeze-mirrored; }
+.door-back img { opacity: .45; }
+.door-light {
+  position: absolute; inset: 0; pointer-events: none; opacity: 0;
+  background: linear-gradient(105deg,#fff3,transparent 35%,#0009);
+}
+.door-right .door-light { background: linear-gradient(255deg,#fff3,transparent 35%,#0009); }
+.cover-lettering { position: absolute; top: 0; bottom: 0; width: 200%; pointer-events: none; color: #f4e7c9; text-align: center; }
+.door-left .cover-lettering { left: 0; }
+.door-right .cover-lettering { left: -100%; }
+.cover-label { position: absolute; top: 10%; width: 100%; margin: 0; font: 21px var(--serif); letter-spacing: .04em; }
+.cover-name { font: 400 clamp(62px,15vw,82px)/1.2 var(--script); position: absolute; left: 0; width: 100%; text-shadow: 0 2px 2px #0002; }
+.first-name { top: 21%; } .second-name { top: 56%; }
+.cover-footer { position: absolute; bottom: 7%; width: 100%; margin: 0; font-size: 13px; line-height: 1.7; color: #e5d7b9; }
+.wax-seal {
+  position: absolute; top: 50%; left: 50%; width: 84px; height: 84px;
+  transform: translate(-50%,-50%) translateZ(12px);
+  border: none; border-radius: 48% 52% 49% 51% / 51% 48% 52% 49%;
+  background: linear-gradient(135deg,#f3dca1 0%,#c5a062 45%,#e0bf7e 65%,#ac8244 100%);
+  box-shadow: 0 5px 12px #0005,inset 1px 2px 2px #fff7,inset -2px -2px 4px #7c541c80;
+  z-index: 3;
+}
+.seal-rim { position: absolute; inset: 7px; border: 1px solid #8e6b3c75; border-radius: 50%; box-shadow: inset 0 0 0 2px #f7dea238,0 0 0 1px #f7dea28c; }
+.seal-monogram { display: block; position: relative; font: 600 29px/1 var(--serif); color: #22180a; text-shadow: 0 1px 0 #ffe9bb; }
+.seal-monogram span { font-size: 16px; margin: 0 2px; font-weight: 400; }
+.seal-shine { position: absolute; inset: 0; border-radius: inherit; background: linear-gradient(110deg,transparent 25%,#fff4 48%,transparent 62%); opacity: 0; transition: opacity .3s; }
+.wax-seal:hover .seal-shine { opacity: 1; }
+.wax-seal:focus-visible { outline-color: #fff1c3; outline-offset: 7px; }
+.opening-cue { display: flex; flex-direction: column; align-items: center; margin-top: 25px; font-size: 13px; color: var(--ink); }
+.opening-cue p { margin: 0 0 6px; }
+.opening-cue .icon { width: 17px; height: 17px; }
+.direct-open { border: 0; background: transparent; font-size: 12px; color: var(--muted); text-decoration: underline; text-underline-offset: 4px; min-height: 44px; margin-top: 3px; }
+.is-opening .cover-intro,.is-opening .opening-cue,.is-opening .direct-open { opacity: 0; transition: opacity 280ms; pointer-events: none; }
+.is-leaving { opacity: 0; pointer-events: none; }
+.card-webgl { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; }
+.webgl-active .fold-card { visibility: hidden; }
+.cover-stage { touch-action: manipulation; }
+.cover-stage,.invitation-shell { -webkit-text-size-adjust: 100%; }
+.calendar-dialog { touch-action: pan-y; }
+html,body { touch-action: pan-y; }
+html.lenis,html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto!important; }
+.lenis.lenis-stopped { overflow: clip; }
+.lenis [data-lenis-prevent] { overscroll-behavior: contain; }
+/* Only used by browsers without Element.animate. */
+.opening-css:not(.motion-reduced) .door-left { animation: open-left 1950ms 260ms cubic-bezier(.42,0,.16,1) forwards; }
+.opening-css:not(.motion-reduced) .door-right { animation: open-right 1950ms 400ms cubic-bezier(.42,0,.16,1) forwards; }
+.opening-css .wax-seal { opacity: 0; transition: opacity 400ms; }
+.opening-css .inside-fold-shadow { opacity: 0; transition: opacity 2200ms; }
+@keyframes open-left { from { transform: rotateY(0deg); } to { transform: rotateY(-154deg); } }
+@keyframes open-right { from { transform: rotateY(0deg); } to { transform: rotateY(154deg); } }
+@media(max-width:600px) { .cover-intro { font-size: 18px; margin-bottom: 20px; } .opening-cue { margin-top: 22px; } }
+@media(max-width:360px) { .cover-stage { padding: 18px 24px; } .fold-card { width: min(330px,100%); } .cover-name { font-size: 67px; } .cover-label { font-size: 19px; } .cover-footer { font-size: 11px; } .wax-seal { width: 74px; height: 74px; } }
+@media(max-height:760px) and (min-width:361px) { .cover-stage { padding: 14px 22px; } .fold-card { width: min(350px,calc((100svh - 160px)*.722)); } .cover-intro { margin-bottom: 16px; font-size: 18px; } .cover-name { font-size: 72px; } .opening-cue { margin-top: 16px; } .cover-footer { font-size: 12px; } }
+@media(max-height:580px) { .fold-card { width: min(270px,calc((100svh - 105px)*.722)); } .cover-intro { font-size: 15px; margin-bottom: 10px; } .cover-name { font-size: clamp(30px,9svh,60px); } .cover-label { font-size: 15px; } .cover-footer { font-size: 9px; } .wax-seal { width: 58px; height: 58px; } .seal-monogram { font-size: 21px; } .seal-monogram span { font-size: 12px; } .opening-cue { margin-top: 10px; font-size: 11px; } .opening-cue .icon,.direct-open { display: none; } .cover-stage { padding: 12px; } .card-inside p { font-size: 13px; } .inside-names { font-size: 42px; margin: 10px 0 16px; } .inside-flourish { width: 26px; height: 20px; margin-bottom: 6px; } }
+@media(prefers-reduced-motion:reduce) { .door img { animation: none; } .motion-reduced .door { transform: rotateY(0deg); } }
+@media print { .cover-stage { display: none!important; } }
