@@ -19,7 +19,7 @@ export function mountScrollMotion(shell, preference) {
     if (!started) return;
     const entering = entries.filter(entry => entry.isIntersecting).map(entry => entry.target);
     entering.forEach((node, index) => reveal(node, Math.min(index * 65, 195)));
-  }, { threshold: .12, rootMargin: '0px 0px -24px 0px' }) : null;
+  }, { threshold: 0, rootMargin: '0px 0px -24px 0px' }) : null;
   if (observer && !preference.matches) targets.forEach(node => { node.classList.add('awaiting-scroll'); observer.observe(node); });
   const drawTimeline = () => {
     frame = 0;
@@ -37,7 +37,7 @@ export function mountScrollMotion(shell, preference) {
     timelineVisible = entries[0].isIntersecting; schedule();
   }, { rootMargin: '80px' }) : null;
   timelineObserver?.observe(list);
-  list.classList.add('timeline-motion');
+  if (timelineObserver) list.classList.add('timeline-motion');
   window.addEventListener('scroll', schedule, { passive: true });
   window.addEventListener('resize', schedule);
   const focus = event => { const node = targets.find(item => item.contains(event.target)); if (node) reveal(node); };
@@ -61,7 +61,7 @@ export function mountScrollMotion(shell, preference) {
       started = true;
       targets.forEach(node => {
         const bounds = node.getBoundingClientRect();
-        if (!observer || preference.matches || bounds.top < window.innerHeight - 24) reveal(node);
+        if (!observer || preference.matches || (bounds.bottom > 0 && bounds.top < window.innerHeight - 24)) reveal(node);
       });
       drawTimeline();
     },

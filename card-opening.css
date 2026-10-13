@@ -267,9 +267,13 @@ html.lenis,html.lenis body { height: auto; }
 @keyframes leaf-breathe { 0%,100% { transform: rotate(-1.5deg); } 50% { transform: rotate(1.8deg); } }
 @keyframes bloom-breathe { 0%,100% { transform: rotate(-.6deg) translateY(0); } 50% { transform: rotate(.8deg) translateY(-1px); } }
 @keyframes stem-breathe { 0%,100% { transform: rotate(-.15deg); } 50% { transform: rotate(.25deg); } }
-.effects-lite .floral-leaf { animation: none; }
+.effects-lite .floral-leaf,.effects-lite .floral-stem { animation: none; }
+/* Budget phones retain a visible breeze using two SVG layers instead of dozens. */
+.effects-lite .paper-botanical { animation: floral-breeze-left 10s ease-in-out infinite; animation-play-state: paused; }
+.effects-lite .paper-botanical-right { animation-name: floral-breeze-right; }
+.effects-lite .greeting.ambient-running .paper-botanical { animation-play-state: running; }
 @media(prefers-reduced-motion:reduce) {
-  .floral-leaf,.floral-bloom,.floral-stem { animation: none!important; }
+  .paper-botanical,.floral-leaf,.floral-bloom,.floral-stem { animation: none!important; }
   .ink-outline { mask: none!important; }
 }
 @media print {

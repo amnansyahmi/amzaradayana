@@ -14,7 +14,20 @@ export function animateCardOpening({ cover, card, seal, left, right, insideShado
     if (didReveal || cancelled) return;
     didReveal = true; onReveal(livePaper?.names);
   };
-  const viewportChange = () => complete();
+  let cardAnimation, cardFrames;
+  const viewportChange = () => {
+    if (cancelled || completed || !livePaper || !cardAnimation) return;
+    // Mobile browser chrome resizes the viewport during a tap. Retarget the
+    // moving paper at its current time instead of cutting the opening short.
+    cardAnimation.effect.setKeyframes([{ transform: 'none' }]);
+    const bounds = card.getBoundingClientRect(), target = livePaper.measure();
+    livePaper.element.style.transform = `scale(${bounds.width / target.width},${bounds.height / target.height})`;
+    const x = target.left + target.width / 2 - bounds.left - bounds.width / 2;
+    const y = target.top + target.height / 2 - bounds.top - bounds.height / 2;
+    const transform = `translate(${x}px,${y}px) rotateX(0deg) scale(${target.width / bounds.width},${target.height / bounds.height})`;
+    cardFrames[3].transform = transform; cardFrames[4].transform = transform;
+    cardAnimation.effect.setKeyframes(cardFrames);
+  };
   let resolveFinished;
   const finished = new Promise(resolve => { resolveFinished = resolve; });
   const schedule = (callback, delay) => {
@@ -79,15 +92,17 @@ export function animateCardOpening({ cover, card, seal, left, right, insideShado
         const x = target.left + target.width / 2 - bounds.left - bounds.width / 2;
         const y = target.top + target.height / 2 - bounds.top - bounds.height / 2;
         finalTransform = `translate(${x}px,${y}px) rotateX(0deg) scale(${target.width / bounds.width},${target.height / bounds.height})`;
-        window.addEventListener('resize', viewportChange, { once: true });
+        window.addEventListener('resize', viewportChange);
+        window.visualViewport?.addEventListener('resize', viewportChange);
       }
-      animate(card, [
+      cardFrames = [
         { transform: 'translateZ(0) rotateX(0deg) scale(1)' },
         { transform: `translateZ(0) rotateX(6deg) scale(${smallScreen ? .8 : .9})`, offset: .3 },
         { transform: `translateZ(0) rotateX(0deg) scale(${smallScreen ? .68 : .8})`, offset: .65 },
         { transform: finalTransform, offset: .9 },
         { transform: finalTransform }
-      ], { duration: 3700, easing: 'cubic-bezier(.42,0,.22,1)' });
+      ];
+      cardAnimation = animate(card, cardFrames, { duration: 3700, easing: 'cubic-bezier(.42,0,.22,1)' });
       animate(insideShadow, [
         { opacity: .82 }, { opacity: .58, offset: .33 },
         { opacity: .18, offset: .72 }, { opacity: 0 }
@@ -115,7 +130,7 @@ export function animateCardOpening({ cover, card, seal, left, right, insideShado
     finished,
     cancel() {
       cancelled = true;
-      if (paperTarget) { window.removeEventListener('resize', viewportChange); card.classList.remove('has-live-paper'); livePaper?.dispose(); }
+      if (paperTarget) { window.removeEventListener('resize', viewportChange); window.visualViewport?.removeEventListener('resize', viewportChange); card.classList.remove('has-live-paper'); livePaper?.dispose(); }
       timers.forEach(clearTimeout);
       animations.forEach(animation => animation.cancel());
       cover.classList.remove('is-opening', 'is-leaving', 'opening-css', 'motion-reduced');
