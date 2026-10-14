@@ -287,3 +287,17 @@ html.lenis,html.lenis body { height: auto; }
 .greeting-close { max-width: none; text-wrap: balance; }
 
 @media(max-width:600px) { .paper-botanical-right { width: 180px; top: -90px; right: -75px; opacity: .3; } }
+
+/* A stationary invitation under a single, continuous gate reveal. */
+.cover-stage.opening-stationary { background: transparent; transition: none; }
+.opening-stationary .card-inside,.opening-stationary .inside-fold-shadow,.opening-stationary .door-back,.opening-stationary .door-light { visibility: hidden; }
+.opening-stationary .fold-card { perspective: none; transform-style: flat; transform: none; }
+.opening-stationary .door { transform-style: flat; }
+.opening-stationary .door-front { transform: none; backface-visibility: visible; }
+.opening-stationary.opening-css:not(.motion-reduced) .door-left { animation: gate-left 1100ms 140ms cubic-bezier(.32,0,.18,1) forwards; }
+.opening-stationary.opening-css:not(.motion-reduced) .door-right { animation: gate-right 1100ms 140ms cubic-bezier(.32,0,.18,1) forwards; }
+@keyframes gate-left { to { transform: translateX(-102%); } }
+@keyframes gate-right { to { transform: translateX(102%); } }
+@media(prefers-reduced-motion:reduce) {
+  .opening-stationary.motion-reduced .door { transform: none; }
+}

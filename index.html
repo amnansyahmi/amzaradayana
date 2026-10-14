@@ -223,9 +223,24 @@
       <button type="button" class="back-to-cover" id="replay-bottom" hidden><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#card"></use></svg>Tutup & lihat semula kad</button>
     </div>
 
+    <nav class="guest-nav" id="guest-nav" aria-label="Pilihan jemputan" hidden>
+<button type="button" id="nav-events" aria-haspopup="dialog" aria-controls="events-dialog"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#card"></use></svg><span>Majlis</span></button><button type="button" id="nav-calendar" aria-haspopup="dialog" aria-controls="calendar-dialog"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#calendar"></use></svg><span>Kalendar</span></button><button type="button" id="nav-location" aria-haspopup="dialog" aria-controls="location-dialog"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#pin"></use></svg><span>Lokasi</span></button><button type="button" id="nav-share"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#share"></use></svg><span>Kongsi</span></button>
+</nav>
+<dialog id="events-dialog" aria-labelledby="events-title" class="calendar-dialog guest-sheet">
+<div class="sheet-handle" aria-hidden="true"><span></span></div>
+<div class="dialog-heading"><h2 id="events-title">Raikan bersama kami</h2><button type="button" class="icon-button" data-close-sheet aria-label="Tutup"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#close"></use></svg></button></div>
+<p>Pilih detik yang ingin anda raikan.</p><div id="event-choices"></div><p class="sheet-footnote">Pilihan semasa: <span id="nav-context"></span></p></dialog><dialog id="location-dialog" aria-labelledby="location-title" class="calendar-dialog guest-sheet">
+<div class="sheet-handle" aria-hidden="true"><span></span></div>
+<div class="dialog-heading"><h2 id="location-title">Lokasi majlis</h2><button type="button" class="icon-button" data-close-sheet aria-label="Tutup"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#close"></use></svg></button></div>
+<label class="sheet-select-label" for="location-event">Pilih majlis</label><select id="location-event" class="sheet-select" data-sheet-event-select></select>
+<svg class="sheet-venue-art" viewBox="0 0 360 170" aria-hidden="true"><use id="location-art" href="assets/venues.svg#glasshouse"></use></svg>
+<h3 class="sheet-venue-name" id="location-name"></h3><p class="sheet-region" id="location-region"></p><p id="location-time"></p><p id="sheet-location-note" class="calendar-note"></p>
+<a id="sheet-map" class="calendar-option" target="_blank" rel="noopener noreferrer"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#pin"></use></svg><span><strong>Google Maps</strong><span>Lihat lokasi & arah perjalanan</span></span></a>
+<a id="sheet-waze" class="calendar-option" target="_blank" rel="noopener noreferrer"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#pin"></use></svg><span><strong>Waze</strong><span>Mulakan navigasi ke majlis</span></span></a></dialog>
     <dialog id="calendar-dialog" aria-labelledby="calendar-title" class="calendar-dialog">
       <div class="sheet-handle" aria-hidden="true"><span></span></div>
       <div class="dialog-heading"><h2 id="calendar-title">Simpan tarikh</h2><button type="button" class="icon-button" id="close-calendar" aria-label="Tutup pilihan kalendar"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#close"></use></svg></button></div>
+      <label class="sheet-select-label" for="calendar-event">Pilih majlis</label><select id="calendar-event" class="sheet-select" data-sheet-event-select></select>
       <p id="calendar-description">Majlis Pernikahan · 13 Mac 2027</p>
       <button class="calendar-option" id="download-calendar" type="button"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#download"></use></svg><span><strong>Apple Calendar / Outlook</strong><span>Muat turun fail kalendar (.ics)</span></span></button>
       <a class="calendar-option" id="google-calendar" href="https://calendar.google.com/calendar/" target="_blank" rel="noopener noreferrer"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#calendar"></use></svg><span><strong>Google Calendar</strong><span>Tambah ke kalendar Google anda</span></span></a>

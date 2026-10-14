@@ -4,14 +4,15 @@ A mobile-first Malay wedding invitation with a fullscreen navy gatefold cover. T
 
 ## Included
 
-- Three.js paper geometry, visible front/back faces and thickness, real-time shadows, and a GSAP opening sequence. CSS 3D remains available if WebGL cannot initialise.
+- A 1.26-second gate reveal using native browser transforms. The real greeting remains stationary underneath; no WebGL opening or camera handoff is loaded.
 - All three event schedules from the supplied invitation, selected via accessible tabs.
 - Google Maps and Waze searches, `.ics` downloads and Google Calendar links in Malaysia time.
 - Countdown for the selected event, native sharing with a copy-link fallback, and replaying the card opening.
 - Self-hosted fonts, keyboard navigation, progressive fallback without JavaScript, and printable details for all events. Tapping the card explicitly plays the full fold even with Reduce Motion enabled; ambient/UI effects still respect that preference.
 - Desktop Lenis scrolling; mobile uses native vertical touch scrolling with pinch/double-tap zoom disabled.
 - A subtle pair of procedural 3D rings behind the names, one with a faceted diamond. Rings turn with scrolling and pause offscreen or in a background tab; an SVG fallback is included.
-- A live copy of the invitation is the moving paper insert. Its final position matches the real greeting; the CSS fallback uses the same layout. Copies have private SVG IDs and are removed after opening.
+- A fixed guest action bar opens an event picker, calendar and location sheets, or the native share menu. Event changes synchronise every sheet and the page. Sheets restore focus to the control that opened them.
+- RSVP, guest wishes, family contacts and music are not enabled: attendance needs a persistence/moderation flow, and contacts/music need owner-provided details.
 - Amzar and Dayana write on with SVG pen masks over the existing Great Vibes outlines. Connected script stays crisp at all screen sizes; readable text remains available without JavaScript. Handwriting, florals and ring highlights respect reduced motion.
 - Individual floral leaves, stems and blooms breathe at different speeds and pause offscreen. A light-device mode keeps only the smaller set of bloom/stem effects.
 - Sections reveal once as they enter view, the selected-event underline slides between tabs, and the event timeline draws with native scrolling.

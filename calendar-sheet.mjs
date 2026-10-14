@@ -1,7 +1,7 @@
 export function mountCalendarSheet(dialog, preference) {
   const handle = dialog.querySelector('.sheet-handle');
   const mobile = () => window.matchMedia('(max-width: 600px)').matches;
-  let animation, closing = false, drag, scrollY = 0;
+  let animation, closing = false, drag, returnFocus, scrollY = 0;
   const cancelAnimation = () => { animation?.cancel(); animation = null; };
   const animate = (frames, options) => {
     cancelAnimation();
@@ -20,9 +20,9 @@ export function mountCalendarSheet(dialog, preference) {
       { duration: mobile() ? 240 : 160, easing: 'cubic-bezier(.4,0,1,1)', fill: 'forwards' });
     outgoing.finished.then(finish, () => { if (closing) finish(); });
   };
-  const open = () => {
+  const open = (trigger = document.activeElement) => {
     if (dialog.open) return;
-    closing = false; scrollY = window.scrollY;
+    closing = false; returnFocus = trigger; scrollY = window.scrollY;
     document.body.style.top = `-${scrollY}px`;
     document.body.classList.add('sheet-open');
     dialog.showModal();
@@ -36,6 +36,7 @@ export function mountCalendarSheet(dialog, preference) {
     closing = false; drag = null; cancelAnimation(); dialog.style.removeProperty('transform');
     document.body.classList.remove('sheet-open'); document.body.style.removeProperty('top');
     window.scrollTo({ top: scrollY, behavior: 'instant' });
+    returnFocus?.focus({ preventScroll: true });
   });
   handle.addEventListener('pointerdown', event => {
     if (!mobile() || !event.isPrimary || closing) return;
